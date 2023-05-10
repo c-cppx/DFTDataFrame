@@ -1,103 +1,3 @@
-import os
-import pandas as pd
-from ase.io import read
-
-# class MyDataFrame:
-#     def __init__(self, root):
-#         self.root = root
-#         self.df = pd.DataFrame(columns=['Path', 'Name', 'E', 'final_traj', 'OUTCAR', 'timestamp'])
-#         self.update()
-
-#     def update(self):
-#         for path, dirs, files in os.walk(self.root):
-#             if 'out.txt' in files:
-#                 name = os.path.basename(path)
-#                 idx = path.replace(self.root, '').replace('/', '-')
-#                 out_path = os.path.join(path, 'out.txt')
-#                 mod_time = os.path.getmtime(out_path)
-#                 if idx in self.df.index and mod_time <= self.df.loc[idx, 'timestamp']:
-#                     continue
-#                 try:
-#                     final_traj = read(os.path.join(path, 'final_traj'))
-#                     energy = final_traj.get_potential_energy()
-#                 except:
-#                     final_traj = None
-#                     energy = None
-#                 if energy is None:
-#                     try:
-#                         outcar = read(os.path.join(path, 'OUTCAR'))
-#                         energy = outcar.get_potential_energy()
-#                     except:
-#                         outcar = None
-#                         energy = None
-#                 if energy is not None:
-#                     self.df.loc[idx] = [path.replace(self.root, ''), name, energy, final_traj, outcar, mod_time]
-
-# import os
-# from datetime import datetime
-# from ase.io import read
-# import pandas as pd
-
-# class MyDataFrame:
-#     def __init__(self, root):
-#         self.root = root
-#         self.data = self._create_dataframe()
-
-#     def _create_dataframe(self):
-#         rows = []
-#         for dirpath, dirnames, filenames in os.walk(self.root):
-#             if "out.txt" in filenames:
-#                 path = dirpath.replace(self.root, "")
-#                 name = os.path.basename(dirpath)
-#                 index = path.replace("/", "-")
-#                 final_traj_path = os.path.join(dirpath, "final.traj")
-#                 outcar_path = os.path.join(dirpath, "OUTCAR")
-#                 try:
-#                     final_traj = read(final_traj_path)
-#                 except:
-#                     final_traj = None
-#                 try:
-#                     outcar = read(outcar_path)
-#                 except:
-#                     outcar = None
-#                 timestamp = datetime.fromtimestamp(os.path.getmtime(os.path.join(dirpath, "out.txt")))
-#                 e = None
-#                 if final_traj is not None:
-#                     e = final_traj.get_potential_energy()
-#                 if e is None and outcar is not None:
-#                     e = outcar.get_potential_energy()
-#                 if e is not None:
-#                     rows.append({"Name": name, "Path": path, "E final_traj": e, "OUTCAR": outcar, "timestamp": timestamp})
-#         df = pd.DataFrame(rows)
-#         df.set_index("Path", inplace=True)
-#         return df
-
-#     def update(self):
-#         for path, row in self.data.iterrows():
-#             out_path = os.path.join(self.root, path, "out.txt")
-#             if os.path.exists(out_path):
-#                 out_timestamp = datetime.fromtimestamp(os.path.getmtime(out_path))
-#                 if out_timestamp > row["timestamp"]:
-#                     self.data.loc[path, "timestamp"] = out_timestamp
-#                     final_traj_path = os.path.join(self.root, path, "final.traj")
-#                     outcar_path = os.path.join(self.root, path, "OUTCAR")
-#                     try:
-#                         final_traj = read(final_traj_path)
-#                     except:
-#                         final_traj = None
-#                     try:
-#                         outcar = read(outcar_path)
-#                     except:
-#                         outcar = None
-#                     e = None
-#                     if final_traj is not None:
-#                         e = final_traj.get_potential_energy(default=None)
-#                     if e is None and outcar is not None:
-#                         e = outcar.get_potential_energy(default=None)
-#                     if e is not None:
-#                         self.data.loc[path, "E final_traj"] = e
-#                         self.data.loc[path, "OUTCAR"] = outcar
-
 
 
 import os
@@ -106,17 +6,15 @@ import pandas as pd
 import numpy as np
 
 
-
-
 class GeometryOptimizationDataFrame:
-    def __init__(self, root):
+    def __init__(self, root, flag='out.txt'):
         self.root = root
         self.data = self._create_dataframe()
 
     def _create_dataframe(self):
         data = []
         for path, dirs, files in os.walk(self.root):
-            if 'out.txt' in files:
+            if flag in files:
                 try:
                     final_traj = read(os.path.join(path, 'final.traj'))
                 except:
@@ -136,7 +34,7 @@ class GeometryOptimizationDataFrame:
                         struc = outcar
                     except:
                         energy = None
-                timestamp = os.path.getmtime(os.path.join(path, 'out.txt'))
+                timestamp = os.path.getmtime(os.path.join(path, flag))
 
                 Path = path.replace(self.root, '')
                 name = Path.replace('/', '-')
@@ -162,7 +60,7 @@ class GeometryOptimizationDataFrame:
         return pd.DataFrame(data).set_index('Name')
 
     def update(self):
-        self.data['new_timestamp'] = self.data.apply(lambda row: os.path.getmtime(self.root + row.name + '/out.txt'), axis=1)
+        self.data['new_timestamp'] = self.data.apply(lambda row: os.path.getmtime(self.root + row.name + '/'+flag), axis=1)
         mask = self.data['new_timestamp'] > self.data['timestamp']
         for path in self.data[mask].index:
             try:
