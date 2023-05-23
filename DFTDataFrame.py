@@ -12,104 +12,108 @@ from pandas import DataFrame as df
 
 
 
-class GeometryOptimizationDataFrame:
-    def __init__(self, root, flag='out.txt'):
-        self.root = root
-        self.data = self._create_dataframe(flag=flag)
-        self.flag = flag
 
-    def _create_dataframe(self,flag):
-        data = []
-        for path, dirs, files in os.walk(self.root):
-            if flag in files:
-                try:
-                    final_traj = read(os.path.join(path, 'relax.traj'))
-                except:
-                    final_traj = None
-                try:
-                    outcar = read(os.path.join(path, 'OUTCAR'))
-                except:
-                    outcar = None
-                if final_traj is None and outcar is None:
-                    continue
-                try:
-                    energy = final_traj.get_potential_energy()
-                    struc= final_traj
-                except:
-                    try:
-                        energy = outcar.get_potential_energy()
-                        struc = outcar
-                    except:
-                        energy = None
-                timestamp = os.path.getmtime(os.path.join(path, flag))
-
-                Path = path.replace(self.root, '')
-                name = Path.replace('/', '-')
-                fmax =round(np.max(np.abs(struc.get_forces())), 4)
-                
-                a = struc.cell.cellpar()[0]
-                b = struc.cell.cellpar()[1]
-                c = struc.cell.cellpar()[2]
-                gamma = struc.cell.cellpar()[5]
-
-                #positions =struc.get_positions()
-                #print(np.max(positions, axis=0)[2] , np.min(positions, axis=0)[2])
-                Formula = (''.join(set(struc.get_chemical_symbols()))
-                        .replace('ZnCu', 'CuZn')
-                        .replace('ZnNi', 'NiZn')
-                        .replace('GaNi', 'NiGa')
-                )
-
-                data.append({'index': name, 'Name': name, 'Path': Path, 'files': os.listdir(os.path.join(self.root, path)),
-                             'E': energy, 'struc': struc, 'final_traj': final_traj, 'OUTCAR': outcar, 'fmax':fmax, 'timestamp': timestamp, 'a' : a,  'b' : b,  'c' : c,  'gamma' : gamma, 'Formula' : Formula})            
-                    
-
-        return pd.DataFrame(data).set_index('index')
-
-    def update(self):
-        self.data['new_timestamp'] = self.data.apply(lambda row: os.path.getmtime(self.root + row.Path + '/'+self.flag), axis=1)
-        mask = self.data['new_timestamp'] > self.data['timestamp']
-        for path in self.data[mask].index:
+def create_Frame(root, flag='out.txt'):
+    Frame = []
+    for Path, dirs, files in os.walk(root):
+        if flag in files:
             try:
-                final_traj = read(self.root + path + 'final.traj')
+                traj = read(os.path.join(Path, 'relax.traj'))
             except:
-                final_traj = None
+                traj = None
             try:
-                outcar = read(self.root + path + 'OUTCAR')
+                outcar = read(os.path.join(Path, 'OUTCAR'))
             except:
                 outcar = None
-            if final_traj is None and outcar is None:
+            if traj is None and outcar is None:
                 continue
             try:
-                energy = final_traj.get_potential_energy()
-                struc = final_traj
+                energy = outcar.get_potential_energy()
+                struc = outcar
             except:
                 try:
-                    energy = outcar.get_potential_energy()
-                    struc = final_traj
+                    energy = traj.get_potential_energy()
+                    struc= traj
                 except:
                     energy = None
+            if root[-1] != '/':  #Root should end with / for consistency
+                root = root + '/'    
+            path = Path.replace(root, '')
+            name = path.replace('/', '-')
+            fmax =round(np.max(np.abs(struc.get_forces())), 4)
+            timestamp = os.path.getmtime(os.path.join(root+path, flag))
 
-            self.data.loc[self.index, 'a'] = struc.cell.cellpar()[0]
-            self.data.loc[self.index, 'b'] = struc.cell.cellpar()[1]
-            self.data.loc[self.index, 'c'] = struc.cell.cellpar()[2]
-            self.data.loc[self.index, 'gamma'] = struc.cell.cellpar()[5]
+            a = struc.cell.cellpar()[0]
+            b = struc.cell.cellpar()[1]
+            c = struc.cell.cellpar()[2]
+            gamma = struc.cell.cellpar()[5]
 
-            self.data.loc[self.index, 'positions'] =struc.get_positions()
+            #positions =struc.get_positions()
             #print(np.max(positions, axis=0)[2] , np.min(positions, axis=0)[2])
-            self.data.loc[self.index, 'Formula'] = (''.join(set(struc.get_chemical_symbols()))
+            Formula = (''.join(set(struc.get_chemical_symbols()))
                     .replace('ZnCu', 'CuZn')
                     .replace('ZnNi', 'NiZn')
                     .replace('GaNi', 'NiGa')
             )
 
-            self.data.loc[path, 'E'] = energy
-            self.data.loc[path, 'final_traj'] = final_traj
-            self.data.at[path, 'Files'] = os.listdir(os.path.join(self.root, path))
-            self.data.loc[path, 'OUTCAR'] = outcar
-            self.data.loc[path, 'timestamp'] = self.data.loc[path, 'new_timestamp']
+            Frame.append({'index': name, 'Name': name, 'Path': path, 'files': os.listdir(os.path.join(root, path)),
+                            'E': energy, 'struc': struc, 'final_traj': traj, 'OUTCAR': outcar, 'fmax':fmax, 'timestamp': timestamp, 'root':root, 'a' : a,  'b' : b,  'c' : c,  'gamma' : gamma, 'Formula' : Formula})            
+                
 
-            self.data.drop('new_timestamp', axis=1, inplace=True)
+    return DataFrame(Frame).set_index('index')
+
+def update(Frame, flag='out.txt'):
+    '''
+    Flag is the file to look out.
+    '''
+
+    Frame['new_timestamp'] = Frame.apply(lambda row: os.path.getmtime(row.root + row.Path + '/'+flag), axis=1)
+    mask = Frame['new_timestamp'] > Frame['timestamp']
+    for index, row in Frame[mask].iterrows():
+        try:
+            traj = read(row.root + row.path + 'final.traj')
+        except:
+            try:
+                traj = read(row.root + row.path + 'relax.traj')
+            except:
+                traj = None
+        try:
+            outcar = read(row.root + row.path + 'OUTCAR')
+        except:
+            outcar = None
+        if traj is None and outcar is None:
+            continue
+        try:
+            energy = outcar.get_potential_energy()
+            struc = outcar
+            print('struc is OUTCAR')
+        except:
+            try:
+                energy = traj.get_potential_energy()
+                struc = traj
+            except:
+                energy = None
+
+        Frame.loc[index, 'a'] = struc.cell.cellpar()[0]
+        Frame.loc[index, 'b'] = struc.cell.cellpar()[1]
+        Frame.loc[index, 'c'] = struc.cell.cellpar()[2]
+        Frame.loc[index, 'gamma'] = struc.cell.cellpar()[5]
+
+        Frame.loc[index, 'positions'] =struc.get_positions()
+        #print(np.max(positions, axis=0)[2] , np.min(positions, axis=0)[2])
+        Frame.loc[index, 'Formula'] = (''.join(set(struc.get_chemical_symbols()))
+                .replace('ZnCu', 'CuZn')
+                .replace('ZnNi', 'NiZn')
+                .replace('GaNi', 'NiGa')
+        )
+        path = row.path
+        Frame.loc[path, 'E'] = energy
+        Frame.loc[path, 'final_traj'] = traj
+        Frame.at[path, 'Files'] = os.listdir(os.path.join(row.root, path))
+        Frame.loc[path, 'OUTCAR'] = outcar
+        Frame.loc[path, 'timestamp'] = Frame.loc[path, 'new_timestamp']
+
+        Frame.drop('new_timestamp', axis=1, inplace=True)
 
 
  #   def InputParameters(row):
@@ -119,95 +123,63 @@ class GeometryOptimizationDataFrame:
  #           return {}
 
 
-    def __getitem__(self, key):
-        return self.data.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self.data.__setitem__(key, value)
-
-    def __delitem__(self, key):
-        self.data.__delitem__(key)
-
-    def __getattr__(self, attr):
-        return getattr(self.data, attr)
-
-    def __setattr__(self, attr, value):
-        if attr in ['data', 'root']:
-            super().__setattr__(attr, value)
-        else:
-            setattr(self.data, attr, value)
-
-    def __repr__(self):
-        return self.data.__repr__()
-
-    def __str__(self):
-        return self.data.__str__()
 
 
-#class Gas(GeometryOptimizationDataFrame):
-#    def __init__(self, root):        
-#        super().__init__(root)
+#class Gas(GeometryOptimizationFrameFrame):
+#    def __init__( row.root):        
+#        super().__init__(row.root)
 
 
-class Surface(GeometryOptimizationDataFrame):
+def Surface(Frame):
+    index = Frame.index
+    Frame.loc[index, 'B_clean']  = [True if 'clean' in i else False for i in index]
+    Frame.loc[index, 'B_convergence']  = [True if 'convergence' in i else False for i in index]
+    Frame.loc[index, 'B_adsorbate']  = [True if 'NH3' in i else False for i in index]
 
-    def __init__(self, root):
-        super().__init__(root)
-
-        #self.Area = self.a*self.b*np.sin(np.radians(self.gamma))
-        #self.vac = self.c-np.max(self.positions, axis=0)[2] + np.min(self.positions, axis=0)[2]#
-
-        self.data.loc[self.index, 'B_clean']  = [True if 'clean' in i else False for i in self.index]
-        self.data.loc[self.index, 'B_convergence']  = [True if 'convergence' in i else False for i in self.index]
-        self.data.loc[self.index, 'B_adsorbate']  = [True if 'NH3' in i else False for i in self.index]
- 
-        for i in ['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']:
-            if '-'+i+'-' in self.index:
-                self.data.loc[self.index, 'B_adsorbate']  = True
-                continue
+    for i in ['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']:
+        if '-'+i+'-' in index:
+            Frame.loc[index, 'B_adsorbate']  = True
+            continue
 
 
-class Adsorption(GeometryOptimizationDataFrame):
+def Adsorption(Frame, Adsorbates=['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']):
+     
+    #Area = a*b*np.sin(np.radians(gamma))
+    #vac = c-np.max(positions, axis=0)[2] + np.min(positions, axis=0)[2]#
+    index = Frame.index
+    Frame.loc[index, 'B_clean']  = [True if 'clean' in i else False for i in index]
+    Frame.loc[index, 'B_adsorbate']  = [True if 'NH3' in i else False for i in index]
 
-    def __init__(self, root, Adsorbates=['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']):
-        super().__init__(root)
-        
-        #self.Area = self.a*self.b*np.sin(np.radians(self.gamma))
-        #self.vac = self.c-np.max(self.positions, axis=0)[2] + np.min(self.positions, axis=0)[2]#
-
-        self.data.loc[self.index, 'B_clean']  = [True if 'clean' in i else False for i in self.index]
-        self.data.loc[self.index, 'B_adsorbate']  = [True if 'NH3' in i else False for i in self.index]
- 
-        for i in ['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']:
-            if '-'+i+'-' in self.index:
-                self.data.loc[self.index, 'B_adsorbate']  = True
-                continue
+    for i in ['CHO', 'NH3', 'NH2_H' 'CuO', 'NiO', 'H', 'Hx4', 'O', 'Ox2', 'Ox3', 'OH', 'OHx2', 'HCOO', 'COOH', 'CO', 'CO2', 'COx2', 'Hx2', 'CN', 'CNx2']:
+        if '-'+i+'-' in index:
+            Frame.loc[index, 'B_adsorbate']  = True
+            continue
 #    def percent_alloy(row):
- #       per = row[row['MO']] / (row[row['M']]+row[row['MO']])
- #       return round(per, 4)*100
+#       per = row[row['MO']] / (row[row['M']]+row[row['MO']])
+#       return round(per, 4)*100
 
 #    def getSurfaceAlloy(Name):
 #        return '-'.join(Name.split('-')[0:3])
 
- #   def getSlabInfo(row):
- #       Name = row['Name']
- #       M = row['M']
- #       Slabsize = '-'.join(Name.split('-')[3:4])
- #       hkl = '-'.join(Name.split('-')[1:2])
- #       #print(M, hkl, Slabsize)
- #       Slabname = '-'.join([M, hkl, Slabsize])
- #       return Slabname, Slabsize, hkl
+#   def getSlabInfo(row):
+#       Name = row['Name']
+#       M = row['M']
+#       Slabsize = '-'.join(Name.split('-')[3:4])
+#       hkl = '-'.join(Name.split('-')[1:2])
+#       #print(M, hkl, Slabsize)
+#       Slabname = '-'.join([M, hkl, Slabsize])
+#       return Slabname, Slabsize, hkl
 
 
         
 
         #B_adsorbate = True if 'C' in row['final_traj'].symbols.indices().keys() else False
 
-    #self.ML = self.apply(lambda row: row["Ni"] + row["Zn"], axis=1)   
-    #self.ML = self.apply(getML, axis=1)
+    #ML = apply(lambda row: row["Ni"] + row["Zn"], axis=1)   
+    #ML = apply(getML, axis=1)
 
 
-class SurfaceAlloy(Surface):
+def SurfaceAlloy(Frame):
 
     def getML(row):
         hkl = row['hkl']
@@ -236,9 +208,6 @@ class SurfaceAlloy(Surface):
                     layers = 4
                 return round(nMO / ((nM+nMO)/int(layers)), 4)
             
-    def __init__(self, root):
-        self.ML = self.apply(getML, axis=1)
-
 
 
 def converged(Frame):
@@ -254,10 +223,10 @@ def adsorbed(row):
 
 
 
-def frequency(row, root):
+def frequency(row):
     here='/Users/dk2994/Desktop/Uni/scripts'
     atoms = row['final_traj']
-    path = root+row['Path']
+    path = row.root+row['Path']
     files = row['files']
     #print(path)
     #os.chdir(row['Path'])
@@ -270,7 +239,7 @@ def frequency(row, root):
                 Freq.append(line.split(' ')[4])
     return Freq[-6:]
 def Frequency(Frame):
-    Frame['Frequency']= Frame.apply(frequency, axis=1, args=[Frame.root])
+    Frame['Frequency']= Frame.apply(frequency, axis=1)
 
 
 
@@ -299,15 +268,14 @@ def get_zpe(row):
 
 
 def get_entropies(Frame):
-    root=Frame.root
     Entropies = df(columns=['E_pot', 'E_ZPE', 'Cv_trans', 'Cv_rot', 'Cv_vib', 'C_vtoC_p', 'S_trans',
         'S_rot', 'S_elec', 'S_vib', 'Sbar', 'S'], index=Frame.index)
-    Entropies['E_pot'],Entropies['E_ZPE'],Entropies['Cv_trans'],Entropies['Cv_rot'],Entropies['Cv_vib'],Entropies['C_vtoC_p'],Entropies['S_trans'],Entropies['S_rot'],Entropies['S_elec'],Entropies['S_vib'],Entropies['Sbar'],Entropies['S']= zip(*Frame.apply(get_zpe_entropies, axis=1, args=[Frame.root]))
+    Entropies['E_pot'],Entropies['E_ZPE'],Entropies['Cv_trans'],Entropies['Cv_rot'],Entropies['Cv_vib'],Entropies['C_vtoC_p'],Entropies['S_trans'],Entropies['S_rot'],Entropies['S_elec'],Entropies['S_vib'],Entropies['Sbar'],Entropies['S']= zip(*Frame.apply(get_zpe_entropies, axis=1))
     try:
         Frame = Frame.join(Entropies)
     except:    
         Frame.update(Entropies)
-        
+
     return Frame
 
 def Entropylines(fp):
@@ -374,8 +342,8 @@ def Entropylines(fp):
 
 #Entropy
 
-def get_zpe_entropies(row, root):
-    fp = root +row['Path']
+def get_zpe_entropies(row):
+    fp = row.root +row['Path']
     try:
         zpe =Zeropointenergy(fp+'/vib.out')
         entropies = Entropylines(fp+'/vib.out')
@@ -389,11 +357,12 @@ def get_zpe_entropies(row, root):
         return [NaN]*12
     
 
-from sympy import symbols
-kb=8.617333262145E-5
-T=symbols('T')
 
-def gas_free_G(row):
+
+def gas_free_G(row, T=None):
+    from sympy import symbols
+    kb=8.617333262145E-5
+    Temp=symbols('Temp')
     E = row['E']
     ZPE = row['E_ZPE']
     Cv_trans = row['Cv_trans']
@@ -402,8 +371,12 @@ def gas_free_G(row):
     S_trans = row['S_trans']
     S_rot = row['S_rot']
     S_vib = row['S_vib']
-    G = float(E)+float(ZPE)+Cv_trans+Cv_rot+Cv_vib-kb*T*(S_trans+S_rot+S_vib)
-    return G.subs('T', 550.15)
+    G = float(E)+float(ZPE)+Cv_trans+Cv_rot+Cv_vib-kb*Temp*(S_trans+S_rot+S_vib)
+    if T==None:
+        return G
+    else:
+        return G.subs('Temp', T)
+    
 
 
 def Atommultiindex(Frame):
