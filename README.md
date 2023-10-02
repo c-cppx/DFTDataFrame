@@ -54,3 +54,5 @@ If you find a bug or would like to suggest a new feature for this repository, pl
 ## License
 
 This project is licensed under the GNU license. See the [LICENSE](LICENSE) file for details.
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
