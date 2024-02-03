@@ -1,0 +1,9 @@
+# contents of pyproject.toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "DFTDataFrame"
+version = "0.1.0"
+
