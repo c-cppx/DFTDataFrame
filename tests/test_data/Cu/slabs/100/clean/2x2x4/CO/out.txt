@@ -1,0 +1,1050 @@
+POSCAR file read
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ WAVECAR not read
+ WARNING: random wavefunctions but no delay for mixing, default for NELMDL
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     36.1718932
+DAV:   1     0.149714799528E+04    0.14971E+04   -0.81792E+04  4800   0.185E+03
+DAV:   2     0.100930629651E+03   -0.13962E+04   -0.13484E+04  4800   0.354E+02
+DAV:   3    -0.213988163329E+02   -0.12233E+03   -0.12015E+03  8160   0.146E+02
+DAV:   4    -0.248767141867E+02   -0.34779E+01   -0.34589E+01  5280   0.239E+01
+DAV:   5    -0.249563056894E+02   -0.79592E-01   -0.79527E-01  6800   0.307E+00    0.211E+01
+Total vdW correction in eV:     35.3052714
+DAV:   6    -0.223617788941E+02    0.25945E+01   -0.69593E+01  6200   0.103E+02    0.127E+01
+Total vdW correction in eV:     35.4528980
+DAV:   7    -0.183827540272E+02    0.39790E+01   -0.18619E+01  5960   0.714E+01    0.402E+00
+Total vdW correction in eV:     35.4063280
+DAV:   8    -0.183345450910E+02    0.48209E-01   -0.37254E+00  6320   0.382E+01    0.313E+00
+Total vdW correction in eV:     35.3132726
+DAV:   9    -0.182702657546E+02    0.64279E-01   -0.15895E+00  8360   0.213E+01    0.210E+00
+Total vdW correction in eV:     35.2542089
+DAV:  10    -0.182160215402E+02    0.54244E-01   -0.75554E-01  8360   0.155E+01    0.125E+00
+Total vdW correction in eV:     35.2261824
+DAV:  11    -0.181795643466E+02    0.36457E-01   -0.27265E-01  6720   0.110E+01    0.370E-01
+Total vdW correction in eV:     35.2274280
+DAV:  12    -0.181749125719E+02    0.46518E-02   -0.40858E-02  8080   0.307E+00    0.299E-01
+Total vdW correction in eV:     35.2333800
+DAV:  13    -0.181710238072E+02    0.38888E-02   -0.11011E-02  7320   0.196E+00    0.116E-01
+Total vdW correction in eV:     35.2392424
+DAV:  14    -0.181687765713E+02    0.22472E-02   -0.28866E-03  6880   0.639E-01    0.841E-02
+Total vdW correction in eV:     35.2404950
+DAV:  15    -0.181680154620E+02    0.76111E-03   -0.81771E-04  6400   0.509E-01    0.388E-02
+Total vdW correction in eV:     35.2420199
+DAV:  16    -0.181678964664E+02    0.11900E-03   -0.44963E-04  6200   0.372E-01    0.369E-02
+Total vdW correction in eV:     35.2450034
+DAV:  17    -0.181680974327E+02   -0.20097E-03   -0.27072E-04  5760   0.270E-01    0.155E-02
+Total vdW correction in eV:     35.2459772
+DAV:  18    -0.181683034852E+02   -0.20605E-03   -0.74602E-05  5920   0.110E-01    0.133E-02
+Total vdW correction in eV:     35.2464267
+DAV:  19    -0.181684480152E+02   -0.14453E-03   -0.71937E-05  5440   0.109E-01    0.710E-03
+Total vdW correction in eV:     35.2467174
+DAV:  20    -0.181684840388E+02   -0.36024E-04   -0.69363E-05  5040   0.426E-02    0.356E-03
+Total vdW correction in eV:     35.2467114
+DAV:  21    -0.181684833878E+02    0.65100E-06   -0.53834E-06  4320   0.257E-02
+Total vdW correction in eV:     35.2466019
+Total vdW correction in eV:     35.2466633
+   1 F= -.18168483E+02 E0= -.18168647E+02  d E =0.490294E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2470720
+DAV:   1    -0.182442225601E+02   -0.18244E+02   -0.31652E+00  5600   0.377E+00    0.188E+00
+Total vdW correction in eV:     35.2496381
+DAV:   2    -0.181808499013E+02    0.63373E-01   -0.22560E-01  6320   0.476E+00    0.106E+00
+Total vdW correction in eV:     35.2526617
+DAV:   3    -0.181879778654E+02   -0.71280E-02   -0.44448E-01  7680   0.122E+01    0.940E-01
+Total vdW correction in eV:     35.2505942
+DAV:   4    -0.181564274822E+02    0.31550E-01   -0.24387E-01  5200   0.103E+01    0.372E-01
+Total vdW correction in eV:     35.2486455
+DAV:   5    -0.181551791167E+02    0.12484E-02   -0.17706E-02  6600   0.303E+00    0.166E-01
+Total vdW correction in eV:     35.2482125
+DAV:   6    -0.181548859301E+02    0.29319E-03   -0.43909E-03  7360   0.128E+00    0.915E-02
+Total vdW correction in eV:     35.2478116
+DAV:   7    -0.181548902190E+02   -0.42888E-05   -0.92720E-04  7040   0.412E-01    0.395E-02
+Total vdW correction in eV:     35.2476307
+DAV:   8    -0.181550156755E+02   -0.12546E-03   -0.14638E-04  6480   0.149E-01    0.176E-02
+Total vdW correction in eV:     35.2476383
+DAV:   9    -0.181551545150E+02   -0.13884E-03   -0.48732E-05  5760   0.168E-01    0.130E-02
+Total vdW correction in eV:     35.2475828
+DAV:  10    -0.181552858461E+02   -0.13133E-03   -0.18707E-05  4520   0.102E-01    0.771E-03
+Total vdW correction in eV:     35.2473479
+DAV:  11    -0.181556163095E+02   -0.33046E-03   -0.38754E-05  4920   0.361E-02    0.609E-03
+Total vdW correction in eV:     35.2472264
+DAV:  12    -0.181558635402E+02   -0.24723E-03   -0.33151E-05  4920   0.490E-02    0.435E-03
+Total vdW correction in eV:     35.2471636
+DAV:  13    -0.181559388185E+02   -0.75278E-04   -0.85797E-06  4920   0.392E-02    0.302E-03
+Total vdW correction in eV:     35.2471013
+DAV:  14    -0.181559855345E+02   -0.46716E-04   -0.26361E-06  3920   0.175E-02    0.175E-03
+Total vdW correction in eV:     35.2470531
+DAV:  15    -0.181560252304E+02   -0.39696E-04   -0.20070E-06  4040   0.130E-02    0.164E-03
+Total vdW correction in eV:     35.2470057
+DAV:  16    -0.181560494854E+02   -0.24255E-04   -0.11595E-06  4040   0.135E-02    0.993E-04
+Total vdW correction in eV:     35.2469528
+DAV:  17    -0.181560717490E+02   -0.22264E-04   -0.11103E-06  3760   0.625E-03    0.664E-04
+Total vdW correction in eV:     35.2469161
+DAV:  18    -0.181560868223E+02   -0.15073E-04   -0.70130E-07  3760   0.632E-03    0.626E-04
+Total vdW correction in eV:     35.2468994
+DAV:  19    -0.181560925931E+02   -0.57708E-05   -0.28364E-07  3920   0.530E-03
+Total vdW correction in eV:     35.2468616
+Total vdW correction in eV:     35.2468841
+   1 F= -.18156093E+02 E0= -.18156343E+02  d E =0.749765E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2463460
+DAV:   1    -0.182106910109E+02   -0.18211E+02   -0.13747E+00  4960   0.250E+00    0.153E+00
+Total vdW correction in eV:     35.2448857
+DAV:   2    -0.181834058508E+02    0.27285E-01   -0.75431E-02  6080   0.246E+00    0.851E-01
+Total vdW correction in eV:     35.2425317
+DAV:   3    -0.181868040536E+02   -0.33982E-02   -0.15507E-01  7080   0.723E+00    0.637E-01
+Total vdW correction in eV:     35.2435469
+DAV:   4    -0.181750653051E+02    0.11739E-01   -0.13313E-01  6200   0.734E+00    0.288E-01
+Total vdW correction in eV:     35.2450918
+DAV:   5    -0.181738055026E+02    0.12598E-02   -0.12475E-02  5600   0.255E+00    0.124E-01
+Total vdW correction in eV:     35.2455970
+DAV:   6    -0.181737009172E+02    0.10459E-03   -0.18148E-03  7000   0.864E-01    0.647E-02
+Total vdW correction in eV:     35.2457808
+DAV:   7    -0.181737008172E+02    0.99972E-07   -0.45521E-04  6640   0.279E-01    0.241E-02
+Total vdW correction in eV:     35.2460075
+DAV:   8    -0.181737085600E+02   -0.77428E-05   -0.10452E-04  5680   0.157E-01    0.131E-02
+Total vdW correction in eV:     35.2460585
+DAV:   9    -0.181736977761E+02    0.10784E-04   -0.31216E-05  5360   0.128E-01    0.789E-03
+Total vdW correction in eV:     35.2461279
+DAV:  10    -0.181736783362E+02    0.19440E-04   -0.10330E-05  4600   0.559E-02    0.503E-03
+Total vdW correction in eV:     35.2463316
+DAV:  11    -0.181736273996E+02    0.50937E-04   -0.18870E-05  4720   0.214E-02    0.401E-03
+Total vdW correction in eV:     35.2464806
+DAV:  12    -0.181735392973E+02    0.88102E-04   -0.20002E-05  4680   0.315E-02    0.284E-03
+Total vdW correction in eV:     35.2465095
+DAV:  13    -0.181735081606E+02    0.31137E-04   -0.29335E-06  4560   0.253E-02    0.226E-03
+Total vdW correction in eV:     35.2465414
+DAV:  14    -0.181734844864E+02    0.23674E-04   -0.12769E-06  3680   0.149E-02    0.983E-04
+Total vdW correction in eV:     35.2466010
+DAV:  15    -0.181734491537E+02    0.35333E-04   -0.13203E-06  3600   0.920E-03    0.117E-03
+Total vdW correction in eV:     35.2466270
+DAV:  16    -0.181734342972E+02    0.14856E-04   -0.50841E-07  4440   0.883E-03    0.706E-04
+Total vdW correction in eV:     35.2466381
+DAV:  17    -0.181734251635E+02    0.91338E-05   -0.23763E-07  3680   0.443E-03
+Total vdW correction in eV:     35.2467004
+Total vdW correction in eV:     35.2466620
+   1 F= -.18173425E+02 E0= -.18173611E+02  d E =0.557567E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2466709
+DAV:   1    -0.181736443416E+02   -0.18174E+02   -0.49868E-03  6320   0.302E-01    0.645E-02
+Total vdW correction in eV:     35.2467500
+DAV:   2    -0.181735920106E+02    0.52331E-04   -0.22375E-03  6840   0.755E-01    0.557E-02
+Total vdW correction in eV:     35.2468706
+DAV:   3    -0.181734771429E+02    0.11487E-03   -0.16427E-03  5200   0.810E-01    0.371E-02
+Total vdW correction in eV:     35.2469357
+DAV:   4    -0.181734437428E+02    0.33400E-04   -0.18542E-04  5160   0.298E-01    0.139E-02
+Total vdW correction in eV:     35.2468508
+DAV:   5    -0.181734380370E+02    0.57058E-05   -0.29308E-05  4880   0.969E-02
+Total vdW correction in eV:     35.2467316
+Total vdW correction in eV:     35.2468213
+   1 F= -.18173438E+02 E0= -.18173623E+02  d E =0.556199E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2466891
+DAV:   1    -0.181739811988E+02   -0.18174E+02   -0.88198E-03  5960   0.855E-01    0.993E-02
+Total vdW correction in eV:     35.2467537
+DAV:   2    -0.181740910499E+02   -0.10985E-03   -0.99692E-03  5200   0.192E+00    0.127E-01
+Total vdW correction in eV:     35.2469957
+DAV:   3    -0.181735074154E+02    0.58363E-03   -0.55951E-03  5280   0.155E+00    0.551E-02
+Total vdW correction in eV:     35.2471432
+DAV:   4    -0.181734646438E+02    0.42772E-04   -0.50441E-04  6760   0.478E-01    0.265E-02
+Total vdW correction in eV:     35.2470906
+DAV:   5    -0.181734588998E+02    0.57439E-05   -0.95116E-05  6680   0.185E-01
+Total vdW correction in eV:     35.2466141
+Total vdW correction in eV:     35.2469243
+   1 F= -.18173459E+02 E0= -.18173644E+02  d E =0.553802E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2465243
+DAV:   1    -0.181739301825E+02   -0.18174E+02   -0.11303E-02  5840   0.793E-01    0.117E-01
+Total vdW correction in eV:     35.2467304
+DAV:   2    -0.181736428585E+02    0.28732E-03   -0.30523E-03  5760   0.133E+00    0.103E-01
+Total vdW correction in eV:     35.2470552
+DAV:   3    -0.181735117220E+02    0.13114E-03   -0.14340E-03  5080   0.933E-01    0.487E-02
+Total vdW correction in eV:     35.2470858
+DAV:   4    -0.181734981032E+02    0.13619E-04   -0.48923E-04  6560   0.436E-01    0.311E-02
+Total vdW correction in eV:     35.2469724
+DAV:   5    -0.181734884593E+02    0.96439E-05   -0.29820E-04  5360   0.367E-01    0.226E-02
+Total vdW correction in eV:     35.2468344
+DAV:   6    -0.181734791253E+02    0.93340E-05   -0.67102E-05  5400   0.171E-01
+Total vdW correction in eV:     35.2467219
+Total vdW correction in eV:     35.2468106
+   1 F= -.18173479E+02 E0= -.18173657E+02  d E =0.532416E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2466941
+DAV:   1    -0.181736526307E+02   -0.18174E+02   -0.29733E-03  5680   0.320E-01    0.661E-02
+Total vdW correction in eV:     35.2467294
+DAV:   2    -0.181736471732E+02    0.54574E-05   -0.21934E-03  6520   0.797E-01    0.579E-02
+Total vdW correction in eV:     35.2468146
+DAV:   3    -0.181735328922E+02    0.11428E-03   -0.16183E-03  5240   0.809E-01    0.384E-02
+Total vdW correction in eV:     35.2468800
+DAV:   4    -0.181735080625E+02    0.24830E-04   -0.17513E-04  5800   0.291E-01    0.180E-02
+Total vdW correction in eV:     35.2468219
+DAV:   5    -0.181735074232E+02    0.63928E-06   -0.29518E-05  4960   0.126E-01
+Total vdW correction in eV:     35.2466895
+Total vdW correction in eV:     35.2467848
+   1 F= -.18173507E+02 E0= -.18173679E+02  d E =0.515430E-03
+ writing wavefunctions
+[0] MPI startup(): I_MPI_MPD_RSH environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_TMPDIR
+[0] MPI startup(): I_MPI_PM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN
+	 I_MPI_SHM
+	 I_MPI_PLATFORM
+	 I_MPI_PMI
+	 I_MPI_PMI_LIBRARY
+[0] MPI startup(): I_MPI_PIN_DOM environment variable is not supported.
+[0] MPI startup(): Similar variables:
+	 I_MPI_PIN_UNIT
+	 I_MPI_PIN
+	 I_MPI_PIN_CELL
+	 I_MPI_PIN_DOMAIN
+	 I_MPI_PIN_ORDER
+[0] MPI startup(): To check the list of supported variables, use the impi_info utility or refer to https://software.intel.com/en-us/mpi-library/documentation/get-started.
+ running on   40 total cores
+ distrk:  each k-point on   40 cores,    1 groups
+ distr:  one band on    1 cores,   40 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Aug 29 2016 09:33:34) complex                        
+  
+ POSCAR found :  3 types and      18 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+     **************************************************************************
+     Initializing libbeef V0.1.2 with the BEEF-vdW functional.
+     Citation: Wellendorff et al., PRB 85, 235149 (2012).
+     **************************************************************************
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have switched on vdW-DFT.                                          |
+|      This routine was written and supplied by Jiri Klimes.                  |
+|      We recommed that you carefully read and cite the following             |
+|      publication                                                            |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        J. Phys.: Cond Matt. 22 022201 (2010)                                |
+|      J. Klimes, D.R. Bowler, A. Michelides                                  |
+|        Phys. Rev. B. 83, 195131 (2011)                                      |
+|      and references therein.                                                |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection opertators     |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: At the moment your POTCAR file does not contain real space       |
+|       projectors, and has to be modified,  BUT if you                       |
+|      want to do an extremely  accurate calculation you might also keep the  |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You enforced a specific xc-type in the INCAR file,                     |
+|      a different type was found on the POTCAR file                          |
+|          I HOPE YOU KNOW, WHAT YOU ARE  DOING                               |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ found WAVECAR, reading the header
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ WARNING: small aliasing (wrap around) errors must be expected
+ FFT: planning ...
+ reading WAVECAR
+ the WAVECAR file was read successfully
+ initial charge from wavefunction
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+Total vdW correction in eV:     35.2466810
+DAV:   1    -0.181736164211E+02   -0.18174E+02   -0.91858E-04  6040   0.622E-01    0.579E-02
+Total vdW correction in eV:     35.2467395
+DAV:   2    -0.181737184648E+02   -0.10204E-03   -0.29631E-03  5400   0.130E+00    0.785E-02
+Total vdW correction in eV:     35.2467389
+DAV:   3    -0.181735224602E+02    0.19600E-03   -0.14757E-03  5040   0.861E-01    0.251E-02
+Total vdW correction in eV:     35.2467495
+DAV:   4    -0.181735162717E+02    0.61885E-05   -0.12630E-04  6760   0.216E-01    0.953E-03
+Total vdW correction in eV:     35.2467463
+DAV:   5    -0.181735158256E+02    0.44609E-06   -0.12163E-05  3760   0.370E-02
+Total vdW correction in eV:     35.2466617
+Total vdW correction in eV:     35.2467236
+   1 F= -.18173516E+02 E0= -.18173690E+02  d E =0.521110E-03
+ writing wavefunctions
+final energy -18.17368953
