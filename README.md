@@ -9,7 +9,7 @@ To get started with using this Python class, follow the steps below:
 
 ### Prerequisites
 
-Before downloading this repository, ensure that you have Python 3 installed on your machine.
+Before downloading this repository, ensure that you have Python 3 installed on your machine and a virtual environment for this package. Pandas 2.0 has received significant changes to the previous version and you might not want to upgrade it in your base environment.
 
 ### Downloading the repository
 
