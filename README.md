@@ -9,7 +9,7 @@ To get started with using this Python class, follow the steps below:
 
 ### Prerequisites
 
-Before downloading this repository, ensure that you have Python 3 installed on your machine and a virtual environment for this package. Pandas 2.0 has received significant changes to the previous version and you might not want to upgrade it in your base environment.
+Before downloading this repository, ensure that you have Python 3 installed on your machine.
 
 ### Downloading the repository
 
@@ -19,9 +19,16 @@ To download this repository, open a terminal window and run the following comman
 git clone https://github.com/c-cppx/DFTDataFrame.git
 ```
 
-### Installing dependencies
+### Actiave the virtual environment OR Installing
 
-After downloading the repository, navigate to the root directory of the project and run the following command to install the required Python packages:
+The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks. You can also choose to not use a virtual environmen for this package. It will however need pandas <2.0 . To activate it go to the folder and type:
+'''bash
+source .venv/bin/activate
+'''
+
+OR
+
+You can install the necessary dependencies of the packages in your base environment if you feel brave enough:
 
 ```python
 pip install -r requirements.txt
@@ -29,23 +36,28 @@ pip install -r requirements.txt
 
 ### Setting up PYTHONPATH
 
-To use the Python class in this repository, you need to add the root directory of this repository to your `PYTHONPATH`. You can do this by running the following command:
+If your `PYTHONPATH` does not contain the path to the DFTDataFrame folder yet you can add this by running the following command:
 
 ```python
 export PYTHONPATH=$PYTHONPATH:/path/to/DFTDataFrame
 ```
 
-Replace `/path/to/DFTDataFrame` with the path to the root directory of this repository on your machine.
+Replace `/path/to/DFTDataFrame` with the path to the directory of this repository on your machine.
 
 ## Usage
 
 To use the Python class in this repository, you can import it into your Python code using the following syntax:
 
 ```python
-from DFTDataFrame import GeometryOptimizationDataFrame
+from DFTDataFrame import Tools
 
-ProjectX = GeometryOptimizationDataFrame('root/to/Calculations')
+root='Path_to_calculations' # The path to the folder that contains all calculations you want to have in your frame.
+flag_file = 'final.traj' # A function will look for all subfolders in the root that contain this file and only include those in the frame.
+calc_file='final.traj'  # Those files will be read with ase.read to get the final structure and energy
+YourCalculationsFrame = create_frame(root, calc_file='final.traj', flag_file='final.traj')
+
 ```
+YourCalculationsFrame is now a pandas DataFrame object. For learning what you can do with it check the attached Jupyter Notebooks. I suggest also to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison).
 
 ## Contributing
 
