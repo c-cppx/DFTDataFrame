@@ -57,7 +57,7 @@ calc_file='final.traj'  # Those files will be read with ase.read to get the fina
 YourCalculationsFrame = create_frame(root, calc_file='final.traj', flag_file='final.traj')
 
 ```
-YourCalculationsFrame is now a pandas DataFrame object. For learning what you can do with it check the attached Jupyter Notebooks. I recommend to watch some of [Matt Harrisons tutorials]([https://www.youtube.com/results?search_query=matt+harrison](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
+YourCalculationsFrame is now a pandas DataFrame object. For learning what you can do with it check the attached Jupyter Notebooks. I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
 
 ## Contributing
 
