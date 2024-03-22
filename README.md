@@ -57,7 +57,12 @@ calc_file='final.traj'  # Those files will be read with ase.read to get the fina
 YourCalculationsFrame = create_frame(root, calc_file='final.traj', flag_file='final.traj')
 
 ```
-YourCalculationsFrame is now a pandas DataFrame object. For getting some inspiration what you can do with it and what the other functions in Tools can do check the attached Jupyter Notebooks. I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
+YourCalculationsFrame is now a pandas DataFrame object. Many functions for reading e.g:
+- Frequencies, Bader charges from ACF.dat are provided in the Tools file. Example of how to use them are shsown in the the attached Jupyter Notebooks Adsorbates. 
+- Inputparameter checks for consistency among the calculations for Kpoints and others are described in InputParameters.ipynb
+
+
+In the Inputp. I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
 
 ## Contributing
 
