@@ -26,14 +26,6 @@ The repository contains a hidden folder *.venv* which contains a virtual environ
 source .venv/bin/activate
 ```
 
-OR
-
-You can install the necessary dependencies of the packages in your base environment if you feel brave enough:
-
-```python
-pip install -r requirements.txt
-```
-
 ### Setting up PYTHONPATH
 
 If your `PYTHONPATH` does not contain the path to the DFTDataFrame folder yet you can add this by running the following command:
