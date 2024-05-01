@@ -14,6 +14,7 @@ from ase.io import read as aseread
 from IPython.display import display
 from numpy import NaN
 from pandas import DataFrame, read_csv
+import pandas as pd
 from pathlib import Path
 
 
@@ -279,7 +280,6 @@ def update(
     modifiedpaths = frame[frame.apply(is_modified, axis=1)].Path.to_list()
 
     paths_to_update = modifiedpaths + newpaths
-    print("pathstoupdate %s", len(paths_to_update))
     if paths_to_update:
         logging.info("update %s", len(paths_to_update))
         new = DataFrame(newpaths, columns=["Path"])
@@ -318,14 +318,16 @@ def update(
         ):  # remove lines from frame which are added with the new data
             if rem in frame.index:
                 frame.drop(rem, inplace=True)
-
-        frame = frame.append(new)
+        print(frame)
+        frame = pd.concat([frame ,new])
     else:
         logging.info("Nothing to update")
 
     frame = remove_nonexistent_paths(frame)
 
     return frame
+
+
 
 
 def Adsorption(
