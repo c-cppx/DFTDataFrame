@@ -8,17 +8,23 @@ from os import walk
 from os.path import getmtime
 
 import numpy as np
-from sympy import Symbol
+from sympy import Symbol, im,I
 from ase import Atoms
 from ase.io import read as aseread
 from IPython.display import display
 from numpy import NaN
 from pandas import DataFrame, read_csv
+from pathlib import Path
+
 
 from ase.neighborlist import neighbor_list
 
 
 logging.basicConfig()
+
+
+def get_project_root() -> Path:
+    return str(Path(__file__).parent.parent)
 
 
 def get_pathtofile(root, file):
@@ -351,10 +357,8 @@ def Adsorption(
             "CNx2",
         ]
     index = frame.index
-    frame.loc[index, "B_clean"] = [
-        True if "clean" in i else False for i in index]
-    frame.loc[index, "B_adsorbate"] = [
-        True if "NH3" in i else False for i in index]
+    frame.loc[index, "B_clean"] = [True if "clean" in i else False for i in index]
+    frame.loc[index, "B_adsorbate"] = [True if "NH3" in i else False for i in index]
 
     for i in [
         "CHO",
@@ -399,26 +403,47 @@ def adsorbed(row):
     else:
         return True
 
+def getVacuum(row, axis=3):
+    '''Vacuum between the periodic images in axis 1,2 or 3.'''
+    positions = row.struc.get_positions()
+    if len(positions) == 0:
+        print('0 atoms in:', row.Name)
+        vac=0
+    else:
+        vac = row.c - np.max(positions, axis=0)[axis-1] + np.min(positions, axis=0)[axis-1]
+    return vac
 
-def frequency(row):
-    #    '/Users/dk2994/Desktop/Uni/scripts
-    #   atoms = row['final_traj']
-    path = row.root + row["Path"]
+def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz"):
+    path = row["Path"]
     files = row["files"]
     # print(path)
     # os.chdir(row['Path'])
-    Freq = []
-    if "vib.xyz" in files:
-        file = open(path + "/vib.xyz", "r")
+    frequencies = []
+    if xyzfile in files:
+        file = open(path + "/" + xyzfile, "r")
         for line in file:
             if re.search("Mode", line):
                 # print(line)
-                Freq.append(line.split(" ")[4])
-    return Freq[-6:]
+                v = line.split(" ")[4]
+                if "i" == v[-1]:
+                    frequencies.append(float(v[0:-1]) * I)
+                else:
+                    frequencies.append(float(v))
+    return frequencies[sliced]
 
 
-def Frequency(Frame):
+def Frequency(Frame, sliced=slice(-1, -5, -1)):
     Frame["Frequency"] = Frame.apply(frequency, axis=1)
+
+
+def Imaginary(Frame):
+    Frame = Frame.copy()
+
+    def condition(x):
+        return [val for val in x if im(val) > 0]
+
+    Frame["Imaginary"] = Frame["Frequency"].apply(condition)
+    return Frame[Frame.Imaginary.apply(len) != 0].Imaginary
 
 
 def lines_that_start_with(string, fp):
@@ -443,7 +468,7 @@ def get_zpe(row, out_file):
     return zpe
 
 
-def get_entropies(frame, out_file="vib.xyz"):
+def get_entropies(frame, out_file="out.txt"):
     entropies = DataFrame(
         columns=[
             "E_pot",
@@ -610,8 +635,7 @@ def ads_free_G(row):
 def Atommultiindex(Frame, struc_file="CONTCAR"):
     if struc_file not in Frame:
         try:
-            Frame[struc_file] = Frame.apply(
-                read_strucfile, args=[struc_file], axis=1)
+            Frame[struc_file] = Frame.apply(read_strucfile, args=[struc_file], axis=1)
         except Exception:
             logging.critical("could not read" + struc_file)
 
@@ -670,8 +694,7 @@ def checkxyz(Frame, badertable):
         z2 = j.struc.get_positions()[:, 2]
         try:
             delta = sum(
-                np.round(x1 - x2, 4) + np.round(y1 - y2, 4) +
-                np.round(z1 - z2, 4)
+                np.round(x1 - x2, 4) + np.round(y1 - y2, 4) + np.round(z1 - z2, 4)
             )
         except Exception:
             delta = 0
