@@ -19,22 +19,19 @@ To download this repository, open a terminal window and run the following comman
 git clone https://github.com/c-cppx/DFTDataFrame.git
 ```
 
-### Actiave the virtual environment OR Installing
+### Activate the virtual environment 
 
-The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks. You can also choose to not use a virtual environmen for this package. It will however need pandas <2.0 . To activate it go to the folder and type:
+The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks.  To activate it go to the folder and type:
 ```bash
 source .venv/bin/activate
 ```
+You can also choose to not use a virtual environmen for this package.
+Then install the local repository with pip either in the virtual environment or the environment of your choice.
 
-### Setting up PYTHONPATH
 
-If your `PYTHONPATH` does not contain the path to the DFTDataFrame folder yet you can add this by running the following command:
-
-```python
-export PYTHONPATH=$PYTHONPATH:/path/to/DFTDataFrame
+```bash
+pip install .
 ```
-
-Replace `/path/to/DFTDataFrame` with the path to the directory of this repository on your machine.
 
 ## Usage
 
@@ -54,7 +51,7 @@ YourCalculationsFrame is now a pandas DataFrame object. Many functions for readi
 - Inputparameter checks for consistency among the calculations for Kpoints and others are described in InputParameters.ipynb
 
 
-In the Inputp. I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
+I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
 
 ## Contributing
 
