@@ -51,7 +51,7 @@ YourCalculationsFrame is now a pandas DataFrame object. Many functions for readi
 - Inputparameter checks for consistency among the calculations for Kpoints and others are described in InputParameters.ipynb
 
 
-In the Input. I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
+I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
 
 ## Contributing
 
