@@ -19,22 +19,19 @@ To download this repository, open a terminal window and run the following comman
 git clone https://github.com/c-cppx/DFTDataFrame.git
 ```
 
-### Actiave the virtual environment OR Installing
+### Actiave the virtual environment 
 
-The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks. You can also choose to not use a virtual environmen for this package. It will however need pandas <2.0 . To activate it go to the folder and type:
+The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks.  To activate it go to the folder and type:
 ```bash
 source .venv/bin/activate
 ```
+You can also choose to not use a virtual environmen for this package.
+Then install the local repository with pip either in the virtual environment or the environment of your choice.
 
-### Setting up PYTHONPATH
 
-If your `PYTHONPATH` does not contain the path to the DFTDataFrame folder yet you can add this by running the following command:
-
-```python
-export PYTHONPATH=$PYTHONPATH:/path/to/DFTDataFrame
+```bash
+pip install .
 ```
-
-Replace `/path/to/DFTDataFrame` with the path to the directory of this repository on your machine.
 
 ## Usage
 
