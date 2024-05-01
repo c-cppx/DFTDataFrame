@@ -22,16 +22,8 @@ git clone https://github.com/c-cppx/DFTDataFrame.git
 ### Actiave the virtual environment OR Installing
 
 The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks. You can also choose to not use a virtual environmen for this package. It will however need pandas <2.0 . To activate it go to the folder and type:
-'''bash
+```bash
 source .venv/bin/activate
-'''
-
-OR
-
-You can install the necessary dependencies of the packages in your base environment if you feel brave enough:
-
-```python
-pip install -r requirements.txt
 ```
 
 ### Setting up PYTHONPATH
