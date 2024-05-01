@@ -19,7 +19,7 @@ To download this repository, open a terminal window and run the following comman
 git clone https://github.com/c-cppx/DFTDataFrame.git
 ```
 
-### Actiave the virtual environment 
+### Activate the virtual environment 
 
 The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks.  To activate it go to the folder and type:
 ```bash
