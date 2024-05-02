@@ -34,6 +34,7 @@ def get_pathtofile(root, file):
 
 
 def read_strucfile(row, file=None):
+    '''Reads file with ase. Checks if the file exists and is readable. Returns Atoms object.'''
     if ospath.exists(get_pathtofile(row["Path"], file)):
         try:
             return aseread(get_pathtofile(row["Path"], file))
@@ -81,7 +82,7 @@ def crawl(root="/Users/dk2994/Desktop/Uni/Calculations/", flag="out.txt"):
     """Crawl through the subfolders of the given root and returnn the paths
     that contain the flag file."""
     paths = []
-    for path, _folders, files in walk(root):
+    for path, _folders, files in walk(root, followlinks=True):
         if flag in files:
             paths.append(path)
     if len(paths) == 0:
@@ -267,7 +268,7 @@ def update(
 
     def remove_nonexistent_paths(frame):
         nonexistant = frame[~frame.apply(nonexistent_paths, axis=1)].index
-        logging.info("%s removed", len(nonexistant))
+        print(len(nonexistant), "were removed")
         return frame.drop(nonexistant)
 
     newpaths = crawl(root, flag_file)
@@ -276,12 +277,12 @@ def update(
         if row.Path in newpaths:
             newpaths.remove(row.Path)
         else:
-            logging.info(ind, " was moved or renamed")
+            print(ind, " was moved or renamed")
     modifiedpaths = frame[frame.apply(is_modified, axis=1)].Path.to_list()
 
     paths_to_update = modifiedpaths + newpaths
     if paths_to_update:
-        logging.info("update %s", len(paths_to_update))
+        print("update", len(paths_to_update), "folders")
         new = DataFrame(newpaths, columns=["Path"])
         new["Name"] = new["Path"].apply(makename, args=[root, droplist])
         new = DataFrame(
@@ -290,38 +291,39 @@ def update(
         new["Name"] = new.index
         new["files"] = new["Path"].apply(listdir)
         if verbose:
-            display(new)
-
-        (
-            new["E"],
-            new["struc"],
-            new["fmax"],
-            new["timestamp"],
-            new["a"],
-            new["b"],
-            new["c"],
-            new["gamma"],
-            new["Formula"],
-        ) = zip(
-            *new.apply(
-                read_relaxed_structure,
-                args=[calc_file, verbose],
-                axis=1,
+            display('new', new)
+        try:
+            (
+                new["E"],
+                new["struc"],
+                new["fmax"],
+                new["timestamp"],
+                new["a"],
+                new["b"],
+                new["c"],
+                new["gamma"],
+                new["Formula"],
+            ) = zip(
+                *new.apply(
+                    read_relaxed_structure,
+                    args=[calc_file, verbose],
+                    axis=1,
+                )
             )
-        )
+        except:
+            for i,n in new.iterrows():
+                    n = (read_relaxed_structure(n, calc_file, verbose))
+                    if len(n) == 4:
+                        print(i)
+                        print(n)
         if verbose:
             display(new)
-        for (
-            rem
-        ) in (
-            new.index.to_list()
-        ):  # remove lines from frame which are added with the new data
+        for rem in new.index.to_list():  # remove lines from frame which are added with the new data
             if rem in frame.index:
                 frame.drop(rem, inplace=True)
-        print(frame)
         frame = pd.concat([frame ,new])
     else:
-        logging.info("Nothing to update")
+        print("Nothing to update")
 
     frame = remove_nonexistent_paths(frame)
 
