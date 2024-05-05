@@ -92,12 +92,16 @@ def crawl(root="/Users/dk2994/Desktop/Uni/Calculations/", flag="out.txt"):
     return paths
 
 
-def makename(path, root, dropstrings=None):
+def makename(path, root, droplist=None, replacedic=None):
     """Creates the index from the path string"""
     name = path.replace(root, "").replace("/", "-")  # root
-    if dropstrings is not None:
-        for string in dropstrings:
+    if droplist is not None:
+        for string in droplist:
             name = name.replace(string, "")
+
+    if replacedic is not None:
+        for string1, string2 in replacedic.items():
+            name = name.replace(string1, string2)
     name = name.replace("--", "-")
     return name
 
@@ -112,7 +116,7 @@ def fill_struc_gap(row, fillwith):
         except Exception:
             E = NaN
             fmax = NaN
-            print("no calculator")
+            print(row.Name, fillwith, "no calculator")
         return struc, E, fmax
     else:
         return row.struc, row.E, row.fmax
@@ -192,6 +196,7 @@ def create_frame(
     flag_file="out.txt",
     calc_file="OUTCAR",
     droplist=None,
+    replacedic=None,
     verbose=False,
 ):
     """
@@ -211,7 +216,7 @@ def create_frame(
     paths = crawl(root=root, flag=flag_file)
 
     frame = DataFrame(paths, columns=["Path"])
-    frame["Name"] = frame["Path"].apply(makename, args=[root, droplist])
+    frame["Name"] = frame["Path"].apply(makename, args=[root, droplist, replacedic])
     frame = DataFrame(
         frame.Path.to_list(),
         index=frame["Name"].to_list(),
@@ -310,11 +315,11 @@ def update(
                     axis=1,
                 )
             )
-        except:
+        except Exception:
             for i,n in new.iterrows():
                     n = (read_relaxed_structure(n, calc_file, verbose))
-                    if len(n) == 4:
-                        print(i)
+                    if len(n) !=9:
+                        print(i, 'read_relaxed_eror')
                         print(n)
         if verbose:
             display(new)
