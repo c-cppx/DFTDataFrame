@@ -686,6 +686,65 @@ def GCN(Frame, AtomsFrameIndex):
     AtomsFrameIndex["GCN"]
 
 
+def get_Moments_Frame(Frame, index):
+    def getMoments(row):
+        struc = row['struc']
+        try: 
+            Moments = struc.get_magnetic_moments()
+        except Exception:
+            Moments = [0]*len(struc)
+        Name = row[index]
+        names = [Name]*len(Moments)
+        indices = [n for n in np.arange(0,len(Moments))]
+        return names, Moments, indices
+    nam, Moments, ind = zip(*Frame.apply(getMoments, axis=1))
+    if not len(Moments) == len(ind):
+        print(nam)
+    names = [i for n in nam for i in n]
+    gc = [i for n in Moments for i in n]
+    indices= [i for n in ind for i in n]
+    #out = pd.MultiIndex(legel=[nam, ind])
+    out = pd.DataFrame(gc, index=[names,indices], columns=['Moments'])
+    #out.index.rename = ['Name', 'indices']
+    return out
+
+
+######
+#Inputparameters
+######
+
+def InputParameters(row):
+    if ospath.exists(row["Path"]+'/calc.traj'):
+        try:
+            a = aseread(row["Path"]+'/calc.traj' )
+            a = a.calc.parameters
+            return a
+        except:
+            print(row.Name, 'calc.traj exception')
+            return {}
+    else:
+        try:
+            a = row["struc"].calc.parameters
+            return a
+        except:
+            print(row.Name, 'struc.calc exception')
+            return {}
+
+
+def getparameter(row, parameter):
+    parameters = row['parameters']
+    try:
+        return str(parameters[parameter])
+    except:
+        return 0
+    
+def checkforparameter(Frame, parameter, value):
+    Frame[parameter] = Frame.apply(getparameter, args=[parameter], axis=1)
+    #print(Frame[Frame[parameter] != value]['Path'].to_string(index=False).replace('/Users/dk2994/Desktop/Uni/Calculations', ''))
+    #return Frame[Frame[parameter] != value]['Path']
+    print(Frame[Frame[parameter] != value][parameter].to_string())
+
+
 #######
 # Bader Charge
 #######
