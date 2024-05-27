@@ -19,18 +19,14 @@ To download this repository, open a terminal window and run the following comman
 git clone https://github.com/c-cppx/DFTDataFrame.git
 ```
 
-### Activate the virtual environment 
-
-The repository contains a hidden folder *.venv* which contains a virtual environment that you can use for this package and the Jupyter Notebooks.  To activate it go to the folder and type:
-```bash
-source .venv/bin/activate
-```
-You can also choose to not use a virtual environmen for this package.
-Then install the local repository with pip either in the virtual environment or the environment of your choice.
-
+### Creat and activate a virtual environment and install the DFTDataFrame package in the environment.
 
 ```bash
-pip install .
+conda create --name DFTDF python=3.11
+conda activate DFTDF
+cd DFTDataFrame
+pip3 install ./ -r requirements.txt
+pip3 install ./
 ```
 
 ## Usage
