@@ -1,7 +1,7 @@
 # DFTDataFrames
 
 This repository contains a Python class that can be used to convert a tree of directories with VASP calculations to a Pandas DataFrame object and Tools to interact. Most functions are based on the
-Atoms Simulation Environment object Atoms.
+Atoms Simulation Environment object Atoms. Have a look at a graphic visualization of this repo with [octo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=c-cppx%2FDFTDataFrame)
 
 ## Getting Started
 
