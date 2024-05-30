@@ -8,7 +8,7 @@ from os import walk
 from os.path import getmtime
 
 import numpy as np
-from sympy import Symbol, im,I
+from sympy import Symbol, im, I
 from ase import Atoms
 from ase.io import read as aseread
 from IPython.display import display
@@ -34,7 +34,7 @@ def get_pathtofile(root, file):
 
 
 def read_strucfile(row, file=None):
-    '''Reads file with ase. Checks if the file exists and is readable. Returns Atoms object.'''
+    """Reads file with ase. Checks if the file exists and is readable. Returns Atoms object."""
     if ospath.exists(get_pathtofile(row["Path"], file)):
         try:
             return aseread(get_pathtofile(row["Path"], file))
@@ -296,7 +296,7 @@ def update(
         new["Name"] = new.index
         new["files"] = new["Path"].apply(listdir)
         if verbose:
-            display('new', new)
+            display("new", new)
         try:
             (
                 new["E"],
@@ -316,17 +316,21 @@ def update(
                 )
             )
         except Exception:
-            for i,n in new.iterrows():
-                    n = (read_relaxed_structure(n, calc_file, verbose))
-                    if len(n) !=9:
-                        print(i, 'read_relaxed_eror')
-                        print(n)
+            for i, n in new.iterrows():
+                n = read_relaxed_structure(n, calc_file, verbose)
+                if len(n) != 9:
+                    print(i, "read_relaxed_eror")
+                    print(n)
         if verbose:
             display(new)
-        for rem in new.index.to_list():  # remove lines from frame which are added with the new data
+        for (
+            rem
+        ) in (
+            new.index.to_list()
+        ):  # remove lines from frame which are added with the new data
             if rem in frame.index:
                 frame.drop(rem, inplace=True)
-        frame = pd.concat([frame ,new])
+        frame = pd.concat([frame, new])
     else:
         print("Nothing to update")
 
@@ -334,8 +338,13 @@ def update(
 
     return frame
 
-
-
+def group_min(Frame, group, value):
+    MLgroup = Frame.groupby(group)
+    ML_min = DataFrame(columns=Frame.columns)
+    for name, group in MLgroup:
+        group = MLgroup.get_group(name)
+        ML_min = pd.concat([ML_min, group.sort_values(value).head(n=1)])
+    return ML_min
 
 def Adsorption(
     frame,
@@ -412,15 +421,21 @@ def adsorbed(row):
     else:
         return True
 
+
 def getVacuum(row, axis=3):
-    '''Vacuum between the periodic images in axis 1,2 or 3.'''
+    """Vacuum between the periodic images in axis 1,2 or 3."""
     positions = row.struc.get_positions()
     if len(positions) == 0:
-        print('0 atoms in:', row.Name)
-        vac=0
+        print("0 atoms in:", row.Name)
+        vac = 0
     else:
-        vac = row.c - np.max(positions, axis=0)[axis-1] + np.min(positions, axis=0)[axis-1]
+        vac = (
+            row.c
+            - np.max(positions, axis=0)[axis - 1]
+            + np.min(positions, axis=0)[axis - 1]
+        )
     return vac
+
 
 def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz"):
     path = row["Path"]
@@ -642,6 +657,9 @@ def ads_free_G(row):
 
 
 def Atommultiindex(Frame, struc_file="CONTCAR"):
+    if len(Frame) == 0:
+        logging.critical('The Frame is empty')
+        return DataFrame(index=['Name','indices'], columns=['Symbols'])
     if struc_file not in Frame:
         try:
             Frame[struc_file] = Frame.apply(read_strucfile, args=[struc_file], axis=1)
@@ -688,60 +706,63 @@ def GCN(Frame, AtomsFrameIndex):
 
 def get_Moments_Frame(Frame, index):
     def getMoments(row):
-        struc = row['struc']
-        try: 
+        struc = row["struc"]
+        try:
             Moments = struc.get_magnetic_moments()
         except Exception:
-            Moments = [0]*len(struc)
+            Moments = [0] * len(struc)
         Name = row[index]
-        names = [Name]*len(Moments)
-        indices = [n for n in np.arange(0,len(Moments))]
+        names = [Name] * len(Moments)
+        indices = [n for n in np.arange(0, len(Moments))]
         return names, Moments, indices
+
     nam, Moments, ind = zip(*Frame.apply(getMoments, axis=1))
     if not len(Moments) == len(ind):
         print(nam)
     names = [i for n in nam for i in n]
     gc = [i for n in Moments for i in n]
-    indices= [i for n in ind for i in n]
-    #out = pd.MultiIndex(legel=[nam, ind])
-    out = pd.DataFrame(gc, index=[names,indices], columns=['Moments'])
-    #out.index.rename = ['Name', 'indices']
+    indices = [i for n in ind for i in n]
+    # out = pd.MultiIndex(legel=[nam, ind])
+    out = pd.DataFrame(gc, index=[names, indices], columns=["Moments"])
+    # out.index.rename = ['Name', 'indices']
     return out
 
 
 ######
-#Inputparameters
+# Inputparameters
 ######
 
+
 def InputParameters(row):
-    if ospath.exists(row["Path"]+'/calc.traj'):
+    if ospath.exists(row["Path"] + "/calc.traj"):
         try:
-            a = aseread(row["Path"]+'/calc.traj' )
+            a = aseread(row["Path"] + "/calc.traj")
             a = a.calc.parameters
             return a
         except:
-            print(row.Name, 'calc.traj exception')
+            print(row.Name, "calc.traj exception")
             return {}
     else:
         try:
             a = row["struc"].calc.parameters
             return a
         except:
-            print(row.Name, 'struc.calc exception')
+            print(row.Name, "struc.calc exception")
             return {}
 
 
 def getparameter(row, parameter):
-    parameters = row['parameters']
+    parameters = row["parameters"]
     try:
         return str(parameters[parameter])
     except:
         return 0
-    
+
+
 def checkforparameter(Frame, parameter, value):
     Frame[parameter] = Frame.apply(getparameter, args=[parameter], axis=1)
-    #print(Frame[Frame[parameter] != value]['Path'].to_string(index=False).replace('/Users/dk2994/Desktop/Uni/Calculations', ''))
-    #return Frame[Frame[parameter] != value]['Path']
+    # print(Frame[Frame[parameter] != value]['Path'].to_string(index=False).replace('/Users/dk2994/Desktop/Uni/Calculations', ''))
+    # return Frame[Frame[parameter] != value]['Path']
     print(Frame[Frame[parameter] != value][parameter].to_string())
 
 
@@ -752,6 +773,9 @@ def checkforparameter(Frame, parameter, value):
 
 def checkxyz(Frame, badertable):
     for i, j in Frame.iterrows():
+        if badertable.loc[i] is None:
+            print(i, ' has no ACF.dat')
+            continue
         if len(badertable.loc[i]) == 0:
             continue
         x1 = badertable.loc[i].X.apply(lambda x: float(x)).to_numpy()
