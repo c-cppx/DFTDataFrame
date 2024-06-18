@@ -9,10 +9,14 @@ from os.path import getmtime
 
 import numpy as np
 from sympy import Symbol, im, I
+from sympy import re as real
+from sympy import symbols
+
 from ase import Atoms
 from ase.io import read as aseread
 from IPython.display import display
 from numpy import NaN
+from numpy import min as npmin
 from pandas import DataFrame, read_csv
 import pandas as pd
 from pathlib import Path
@@ -41,7 +45,10 @@ def read_strucfile(row, file=None):
         except IndexError:
             logging.critical(file + " empty in " + row.Name)
             return Atoms()
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             logging.critical(file + " not readable " + row.Name)
             return Atoms()
     else:
@@ -55,7 +62,10 @@ def read_CONTCAR(row):
             return aseread(row["Path"] + "/CONTCAR")
         except IndexError:
             logging.info("exists but empty: %s" % row.Path)
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             logging.info(row.Path + "exists but could not be read")
     else:
         return Atoms()
@@ -113,7 +123,10 @@ def fill_struc_gap(row, fillwith):
         try:
             E = struc.get_potential_energy()
             fmax = np.max(struc.get_forces())
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             E = NaN
             fmax = NaN
             print(row.Name, fillwith, "no calculator")
@@ -145,7 +158,7 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
     verboseprint = getverboseprint(verbose)
     timestamp = getmtime(path)
     energy = 0
-    calc = 0
+    calc = Atoms()
     fmax = 0
     cell_a = 0
     cell_b = 0
@@ -156,7 +169,10 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
     if ospath.exists(pathtofile):
         try:
             calc = aseread(pathtofile)
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             verboseprint("{0} could not be read ".format(calc_file))
             calc = Atoms()
         else:
@@ -315,7 +331,10 @@ def update(
                     axis=1,
                 )
             )
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             for i, n in new.iterrows():
                 n = read_relaxed_structure(n, calc_file, verbose)
                 if len(n) != 9:
@@ -338,6 +357,7 @@ def update(
 
     return frame
 
+
 def group_min(Frame, group, value):
     MLgroup = Frame.groupby(group)
     ML_min = DataFrame(columns=Frame.columns)
@@ -345,6 +365,7 @@ def group_min(Frame, group, value):
         group = MLgroup.get_group(name)
         ML_min = pd.concat([ML_min, group.sort_values(value).head(n=1)])
     return ML_min
+
 
 def Adsorption(
     frame,
@@ -405,6 +426,38 @@ def Adsorption(
             continue
 
 
+def distance_from_surface(row, struc=None, adsorbate_atoms=['C', 'O', 'H'] , all_distances=False):
+    """Return the distance of the adsorbate from the distance. Atoms with C, O, H are considered part of the adsorbate.
+    Returns all distances or the minimum distance of C, O or H to any other element that is not C, O or H."""
+    distances = {}
+    adsorbates_index = {}
+    struc=row[struc]
+    if struc is not Atoms():
+        indices = struc.symbols.indices()
+    for adsorbate_atom in adsorbate_atoms:
+        try:
+            adsorbates_index[adsorbate_atom] = indices.pop(adsorbate_atom)
+        except Exception:
+            # print("An error occured:", type(error).__name__) # An error occured
+            continue
+    for adsorbate_atom in adsorbates_index.keys():
+        for el in indices.keys():
+            for adsatom in adsorbates_index[adsorbate_atom]:
+                distances[str(el + "-" + adsorbate_atom + str(adsatom))] = round(
+                    npmin(struc.get_distances(adsatom, indices[el])), 2
+                )
+
+    try:
+        bondlength = npmin(list(distances.values()))
+    except Exception as error:
+        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
+        bondlength = 0
+    if all_distances:
+        return bondlength, all_distances
+    else:
+        return bondlength
+
+
 def converged(frame, force_col="fmax", convergence_threshold=0.01):
     """returns a frame with the converged calculations."""
     return frame[(frame[force_col].lt(convergence_threshold)) & (frame[force_col] != 0)]
@@ -415,8 +468,12 @@ def notconverged(frame, force_col="fmax", convergence_threshold=0.01):
     return frame[(frame[force_col].gt(convergence_threshold)) | (frame[force_col] == 0)]
 
 
-def adsorbed(row):
-    if 2.5 < row["Distance"]:
+def adsorbed(row, Bondlength=2.5):
+    '''
+    Returns True or False depending on the bond distance.
+    Needs column with name "Distance". From function "distance_from_surface".
+    '''
+    if Bondlength < row["Distance"]:
         return False
     else:
         return True
@@ -437,14 +494,14 @@ def getVacuum(row, axis=3):
     return vac
 
 
-def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz"):
+def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz", min=None):
     path = row["Path"]
     files = row["files"]
     # print(path)
     # os.chdir(row['Path'])
     frequencies = []
     if xyzfile in files:
-        file = open(path + "/" + xyzfile, "r")
+        file = open(path + "/" + xyzfile, "r", encoding="utf-8")
         for line in file:
             if re.search("Mode", line):
                 # print(line)
@@ -453,11 +510,23 @@ def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz"):
                     frequencies.append(float(v[0:-1]) * I)
                 else:
                     frequencies.append(float(v))
+        frequencies = sorted(
+            frequencies, key=lambda x: (real(x), im(x) if hasattr(x, "is_real") else x)
+        )
+        if min is None:
+            pass
+        else:
+            frequencies = [val for val in frequencies if im(val) == 0]
+            frequencies = np.array(frequencies)
+            frequencies = frequencies[frequencies > min]
+    # else:
+    #    print(xyzfile, 'Not in files ', row.Name)
+
     return frequencies[sliced]
 
 
-def Frequency(Frame, sliced=slice(-1, -5, -1)):
-    Frame["Frequency"] = Frame.apply(frequency, axis=1)
+def Frequency(Frame, sliced=slice(-1, -5, -1), xyzfile="vib.xyz", min=None):
+    Frame["Frequency"] = Frame.apply(frequency, args=[sliced, xyzfile, None], axis=1)
 
 
 def Imaginary(Frame):
@@ -471,18 +540,23 @@ def Imaginary(Frame):
 
 
 def lines_that_start_with(string, fp):
-    with open(fp, "r") as f:
+    with open(fp, "r", errors="replace") as f:
         try:
             return [line for line in f if line.startswith(string)][-1]
-        except Exception:
+        except Exception as error:
+            print("An error occured:", type(error).__name__)  # An error occured
             return NaN
+
+
+# Entropies
 
 
 def Zeropointenergy(fp):
     zpe = lines_that_start_with("Zero-point energy:", fp)
     try:
         return zpe.split(" ")[2]
-    except Exception:
+    except Exception as error:
+        print("An error occured:", type(error).__name__)  # An error occured
         return NaN
 
 
@@ -526,7 +600,8 @@ def get_entropies(frame, out_file="out.txt"):
     ) = zip(*frame.apply(get_zpe_entropies, args=[out_file], axis=1))
     try:
         frame = frame.join(entropies)
-    except Exception:
+    except Exception as error:
+        #print("Overwrite Entropies in Frame")  # An error occured
         frame.update(entropies)
 
     return frame
@@ -597,11 +672,11 @@ def Entropylines(fp):
                         line = next(f)
 
                 return Entropies
-            except Exception:
+            except Exception as error:
+                print(
+                    fp, "An error occurred:", type(error).__name__
+                )  # An error occurred:
                 return Entropies
-
-
-# Entropy
 
 
 def get_zpe_entropies(row, out_file="out.txt"):
@@ -609,7 +684,8 @@ def get_zpe_entropies(row, out_file="out.txt"):
     try:
         #        zpe = Zeropointenergy(fp + '/vib.out')
         entropies = Entropylines(get_pathtofile(fp, out_file))
-    except Exception:
+    except Exception as error:
+        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
         #        zpe = Zeropointenergy(fp + '/out.txt')
         entropies = Entropylines(get_pathtofile(fp, out_file))
     if len(entropies) == 12:
@@ -619,8 +695,10 @@ def get_zpe_entropies(row, out_file="out.txt"):
         return [NaN] * 12
 
 
+# free G
+
+
 def gas_free_G(row, T=None):
-    from sympy import symbols
 
     kb = 8.617333262145e-5
     Temp = symbols("Temp")
@@ -658,12 +736,13 @@ def ads_free_G(row):
 
 def Atommultiindex(Frame, struc_file="CONTCAR"):
     if len(Frame) == 0:
-        logging.critical('The Frame is empty')
-        return DataFrame(index=['Name','indices'], columns=['Symbols'])
+        logging.critical("The Frame is empty")
+        return DataFrame(index=["Name", "indices"], columns=["Symbols"])
     if struc_file not in Frame:
         try:
             Frame[struc_file] = Frame.apply(read_strucfile, args=[struc_file], axis=1)
-        except Exception:
+        except Exception as error:
+            print("An error occured:", type(error).__name__)  # An error occured
             logging.critical("could not read" + struc_file)
 
     def getsymbols(row):
@@ -709,7 +788,10 @@ def get_Moments_Frame(Frame, index):
         struc = row["struc"]
         try:
             Moments = struc.get_magnetic_moments()
-        except Exception:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             Moments = [0] * len(struc)
         Name = row[index]
         names = [Name] * len(Moments)
@@ -733,29 +815,40 @@ def get_Moments_Frame(Frame, index):
 ######
 
 
-def InputParameters(row):
+def InputParameters(row, filename='struc'):
     if ospath.exists(row["Path"] + "/calc.traj"):
         try:
             a = aseread(row["Path"] + "/calc.traj")
             a = a.calc.parameters
             return a
-        except:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             print(row.Name, "calc.traj exception")
             return {}
     else:
         try:
-            a = row["struc"].calc.parameters
+            a = row[filename].calc.parameters
             return a
-        except:
+        except Exception as error:
+            print(
+                row.Name, "An error occured:", type(error).__name__
+            )  # An error occured
             print(row.Name, "struc.calc exception")
             return {}
 
 
-def getparameter(row, parameter):
-    parameters = row["parameters"]
+def getparameter(row, parameter, dic_column='parameters'):
+    '''
+    parameter: The calculation parameter to extract. e.g 'kpts', 'encut'
+    dic_column: The column that contains the dictionary from reading the INCAR or the Atoms object.
+    '''
+    parameters = row[dic_column]
     try:
         return str(parameters[parameter])
-    except:
+    except Exception as error:
+        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
         return 0
 
 
@@ -766,6 +859,17 @@ def checkforparameter(Frame, parameter, value):
     print(Frame[Frame[parameter] != value][parameter].to_string())
 
 
+def read_incar(row, filename="INCAR"):
+    from pymatgen.io import vasp  # importing here keeps the pymatgen package optional.
+
+    try:
+        incar = vasp.inputs.Incar.from_file(get_pathtofile(row.Path, filename))
+    except Exception as error:
+        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
+        return
+    return incar
+
+
 #######
 # Bader Charge
 #######
@@ -774,7 +878,7 @@ def checkforparameter(Frame, parameter, value):
 def checkxyz(Frame, badertable):
     for i, j in Frame.iterrows():
         if badertable.loc[i] is None:
-            print(i, ' has no ACF.dat')
+            print(i, " has no ACF.dat")
             continue
         if len(badertable.loc[i]) == 0:
             continue
@@ -788,7 +892,8 @@ def checkxyz(Frame, badertable):
             delta = sum(
                 np.round(x1 - x2, 4) + np.round(y1 - y2, 4) + np.round(z1 - z2, 4)
             )
-        except Exception:
+        except Exception as error:
+            print(i, "An error occured:", type(error).__name__)  # An error occured
             delta = 0
         if delta == 0:
             print("delta0", i)
@@ -814,7 +919,8 @@ def read_bader(row):
             index_col=None,
             delim_whitespace=True,
         )
-    except Exception:
+    except Exception as error:
+        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
         print(row["Path"], "no ACF.dat")
         return print(row["Path"], row["files"])
     CHG.index.name = "index"

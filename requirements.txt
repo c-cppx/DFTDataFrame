@@ -16,10 +16,12 @@ jupyter
 kiwisolver
 matplotlib
 matplotlib-inline
+more_itertools
 mpmath
 nest-asyncio
 notebook
 numpy
+openpyxl
 packaging
 pandas
 parso
