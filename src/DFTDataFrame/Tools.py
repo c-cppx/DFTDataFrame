@@ -24,8 +24,9 @@ from pathlib import Path
 
 from ase.neighborlist import neighbor_list
 
+logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 def get_project_root() -> Path:
@@ -52,7 +53,7 @@ def read_strucfile(row, file=None):
             logging.critical(file + " not readable " + row.Name)
             return Atoms()
     else:
-        return row.struc
+        return Atoms()
 
 
 def read_CONTCAR(row):
@@ -278,7 +279,7 @@ def update(
     def is_modified(row):
         """Compare timestamp with last modified of calculations folder."""
         try:
-            return row.timestamp < getmtime(row.Path)
+            return row.timestamp > getmtime(row.Path)
         except FileNotFoundError:
             logging.info("Path does not exist " + row.Path)
             return False
@@ -293,15 +294,14 @@ def update(
         return frame.drop(nonexistant)
 
     newpaths = crawl(root, flag_file)
-
     for ind, row in frame.iterrows():
         if row.Path in newpaths:
             newpaths.remove(row.Path)
         else:
             print(ind, " was moved or renamed")
     modifiedpaths = frame[frame.apply(is_modified, axis=1)].Path.to_list()
-
-    paths_to_update = modifiedpaths + newpaths
+    print("modified", len(modifiedpaths))
+    paths_to_update = modifiedpaths
     if paths_to_update:
         print("update", len(paths_to_update), "folders")
         new = DataFrame(newpaths, columns=["Path"])
@@ -367,6 +367,15 @@ def group_min(Frame, group, value):
     return ML_min
 
 
+def count_element(row, element, struc="struc"):
+    try:
+        traj = row[struc]
+    except Exception as error:
+        print(row.Name, error)
+    count_of_element = len([atom.symbol for atom in traj if atom.symbol == element])
+    return count_of_element
+
+
 def Adsorption(
     frame,
     adsorbates=None,
@@ -426,12 +435,15 @@ def Adsorption(
             continue
 
 
-def distance_from_surface(row, struc=None, adsorbate_atoms=['C', 'O', 'H'] , all_distances=False):
+def distance_from_surface(
+    row, struc=None, adsorbate_atoms=["C", "O", "H"], all_distances=False
+):
     """Return the distance of the adsorbate from the distance. Atoms with C, O, H are considered part of the adsorbate.
-    Returns all distances or the minimum distance of C, O or H to any other element that is not C, O or H."""
+    Returns all distances or the minimum distance of C, O or H to any other element that is not C, O or H.
+    """
     distances = {}
     adsorbates_index = {}
-    struc=row[struc]
+    struc = row[struc]
     if struc is not Atoms():
         indices = struc.symbols.indices()
     for adsorbate_atom in adsorbate_atoms:
@@ -469,10 +481,10 @@ def notconverged(frame, force_col="fmax", convergence_threshold=0.01):
 
 
 def adsorbed(row, Bondlength=2.5):
-    '''
+    """
     Returns True or False depending on the bond distance.
     Needs column with name "Distance". From function "distance_from_surface".
-    '''
+    """
     if Bondlength < row["Distance"]:
         return False
     else:
@@ -511,7 +523,9 @@ def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz", min=None):
                 else:
                     frequencies.append(float(v))
         frequencies = sorted(
-            frequencies, key=lambda x: (real(x), im(x) if hasattr(x, "is_real") else x)
+            frequencies,
+            reverse=False,
+            key=lambda x: (real(x), im(x) if hasattr(x, "is_real") else x),
         )
         if min is None:
             pass
@@ -551,24 +565,16 @@ def lines_that_start_with(string, fp):
 # Entropies
 
 
-def Zeropointenergy(fp):
-    zpe = lines_that_start_with("Zero-point energy:", fp)
-    try:
-        return zpe.split(" ")[2]
-    except Exception as error:
-        print("An error occured:", type(error).__name__)  # An error occured
-        return NaN
+def get_entropies(frame, out_file: str = None, verbose=True):
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
-
-def get_zpe(row, out_file):
-    fp = row["Path"]
-    zpe = Zeropointenergy(fp + "/" + out_file)
-    return zpe
-
-
-def get_entropies(frame, out_file="out.txt"):
     entropies = DataFrame(
         columns=[
+            "modes_for_G",
+            "Cv_T_at",
             "E_pot",
             "E_ZPE",
             "Cv_trans",
@@ -585,6 +591,8 @@ def get_entropies(frame, out_file="out.txt"):
         index=frame.index,
     )
     (
+        entropies["modes_for_G"],
+        entropies["Cv_T_at"],
         entropies["E_pot"],
         entropies["E_ZPE"],
         entropies["Cv_trans"],
@@ -597,11 +605,11 @@ def get_entropies(frame, out_file="out.txt"):
         entropies["S_vib"],
         entropies["Sbar"],
         entropies["S"],
-    ) = zip(*frame.apply(get_zpe_entropies, args=[out_file], axis=1))
+    ) = zip(*frame.apply(get_zpe_entropies, args=[verbose, out_file], axis=1))
     try:
         frame = frame.join(entropies)
-    except Exception as error:
-        #print("Overwrite Entropies in Frame")  # An error occured
+    except Exception:
+        # print("Overwrite Entropies in Frame")  # An error occured
         frame.update(entropies)
 
     return frame
@@ -610,17 +618,34 @@ def get_entropies(frame, out_file="out.txt"):
 def Entropylines(fp):
     Entropies = {}
     if not ospath.exists(fp):
-        return "no file"
+        logging.debug("no file", fp)
+        return None
     else:
-        with open(fp, "r") as f:
+        with open(fp, "r", errors="replace") as f:
+            logger.debug(fp)
             try:
                 for line in f:
-                    if line.startswith("E_pot"):  # Loop until it finds E_pot
-                        # then continues the next condition
+                    while not line.startswith("  #    meV     cm^-1"):
+                        line = next(f)
+                    line = next(f)
+                    line = next(f)  # to line with 0
+                    modes = []
+
+                    while not line.startswith("-"):
+                        modes.append(line.split()[2])
+                        line = next(f)
+                    Entropies["modes_for_G"] = modes
+                    while not line.startswith("Enthalpy components at T"):
+                        line = next(f)
+                    if line.startswith("Enthalpy components at T"):
+                        Entropies["Cv_T_at"] = float(line.split()[5])
+                        line = next(f)
+
+                    while not line.startswith("E_pot"):
+                        line = next(f)
+                    if line.startswith("E_pot"):
                         Entropies["E_pot"] = float(line.split()[1])
                         line = next(f)
-                    else:
-                        continue
 
                     if line.startswith(
                         "E_ZPE",
@@ -670,29 +695,61 @@ def Entropylines(fp):
                         Entropies["S"] = float(line.split()[1])
                         next(f)
                         line = next(f)
-
-                return Entropies
-            except Exception as error:
-                print(
-                    fp, "An error occurred:", type(error).__name__
+                    
+                    return Entropies
+            except StopIteration:
+                logger.debug(
+                    fp + " End of file with not entropies found   " + Entropies
                 )  # An error occurred:
+
+                # except Exception as error:
+                #    logger.debug(
+                #        fp + " Unusual "+ type(error).__name__+" error reading file"
+                #    )  # An error occurred:
                 return Entropies
 
 
-def get_zpe_entropies(row, out_file="out.txt"):
-    fp = row["Path"]
-    try:
-        #        zpe = Zeropointenergy(fp + '/vib.out')
-        entropies = Entropylines(get_pathtofile(fp, out_file))
-    except Exception as error:
-        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
-        #        zpe = Zeropointenergy(fp + '/out.txt')
-        entropies = Entropylines(get_pathtofile(fp, out_file))
-    if len(entropies) == 12:
-        return tuple(entropies.values())
+def get_zpe_entropies(row, verbose=False, out_file=None):
+    if verbose:
+        logger.setLevel(logging.DEBUG)
     else:
-        print(fp, "\n", entropies)
-        return [NaN] * 12
+        logger.setLevel(logging.INFO)
+
+    fp = row["Path"]
+    if out_file is None:
+        logger.debug("no out_file chosen")
+    if out_file is not None:
+        logger.debug("outfile is " + out_file)
+        try:
+            entropies = Entropylines(get_pathtofile(fp, out_file))
+        except Exception as error:
+            logger.debug(
+                row.Name + " An error occured here: " + type(error).__name__
+            )  # An error occured
+            entropies = None
+
+    if entropies is None:
+        if verbose:
+            logger.debug(row.Name + " no entropies")
+        return [NaN] * 14
+    elif len(entropies) == 14:
+        logger.debug(row.Name + " valid entropies")
+
+        return tuple(entropies.values())
+    if len(entropies) == 0:
+        logger.critical(row.Name + " empty entropies")
+        return [NaN] * 14
+
+    else:
+        logger.critical(
+            row.Name
+            + " partial entropies: "
+            + str(len(entropies))
+            + " "
+            + str(entropies.keys())
+        )
+        return [NaN] * 14
+
 
 
 # free G
@@ -700,8 +757,7 @@ def get_zpe_entropies(row, out_file="out.txt"):
 
 def gas_free_G(row, T=None):
 
-    kb = 8.617333262145e-5
-    Temp = symbols("Temp")
+    T = symbols("T")
     E = row["E"]
     ZPE = row["E_ZPE"]
     Cv_trans = row["Cv_trans"]
@@ -716,12 +772,12 @@ def gas_free_G(row, T=None):
         + Cv_trans
         + Cv_rot
         + Cv_vib
-        - kb * Temp * (S_trans + S_rot + S_vib)
+        - T * (S_trans + S_rot + S_vib)
     )
     if T is None:
         return G
     else:
-        return G.subs("Temp", T)
+        return G.subs("T", T)
 
 
 def ads_free_G(row):
@@ -731,7 +787,7 @@ def ads_free_G(row):
     Cv_vib = row["Cv_vib"]
     S_vib = row["S_vib"]
     G = float(E) + float(ZPE) + Cv_vib - T * (S_vib)
-    return G.subs("Temp", 550.15)
+    return G
 
 
 def Atommultiindex(Frame, struc_file="CONTCAR"):
@@ -815,7 +871,7 @@ def get_Moments_Frame(Frame, index):
 ######
 
 
-def InputParameters(row, filename='struc'):
+def InputParameters(row, filename="struc"):
     if ospath.exists(row["Path"] + "/calc.traj"):
         try:
             a = aseread(row["Path"] + "/calc.traj")
@@ -839,11 +895,11 @@ def InputParameters(row, filename='struc'):
             return {}
 
 
-def getparameter(row, parameter, dic_column='parameters'):
-    '''
+def getparameter(row, parameter, dic_column="parameters"):
+    """
     parameter: The calculation parameter to extract. e.g 'kpts', 'encut'
     dic_column: The column that contains the dictionary from reading the INCAR or the Atoms object.
-    '''
+    """
     parameters = row[dic_column]
     try:
         return str(parameters[parameter])
@@ -930,3 +986,55 @@ def read_bader(row):
     CHG.drop(["ATOMIC", "VOL"], axis=1, inplace=True)
     CHG.drop(CHG[-4:].index.to_list(), inplace=True)
     return CHG
+
+
+# Reaction pathways
+
+import matplotlib.pyplot as plt
+
+
+def barrier(x1, x2, x3, y1, y2, y3, color="black"):
+    #        import numpy as np
+
+    """
+    Adapted and modifed to get the unknowns for defining a parabola:
+    http://stackoverflow.com/questions/717762/how-to-calculate-the-vertex-of-a-parabola-given-three-points
+    """
+
+    def fx_parabola(x1, x2, x3, y1, y2, y3):
+        "Returns the function of a parabola going through three points."
+        denom = (x1 - x2) * (x1 - x3) * (x2 - x3)
+        a = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denom
+        b = (x3 * x3 * (y1 - y2) + x2 * x2 * (y3 - y1) + x1 * x1 * (y2 - y3)) / denom
+        c = (
+            x2 * x3 * (x2 - x3) * y1
+            + x3 * x1 * (x3 - x1) * y2
+            + x1 * x2 * (x1 - x2) * y3
+        ) / denom
+
+        return a, b, c
+
+    def parabolaPoints(x1, x2, a, b, c):
+        x_pos = np.arange(x1, x2, 0.001)
+        y_pos = []
+        # Calculate y values
+        for x in range(len(x_pos)):
+            x_val = x_pos[x]
+            y = (a * (x_val**2)) + (b * x_val) + c
+            y_pos.append(y)
+        return x_pos, y_pos
+
+    # Plot the parabola (+ the known points)
+
+    # First half of the parabola
+    a, b, c = fx_parabola(x1, x2, x3, y1, y2, y1)
+    x_pos1, y_pos1 = parabolaPoints(x1, x2, a, b, c)
+    plt.plot(x_pos1, y_pos1, linestyle="-", color=color)  # first half of parabola line
+
+    # Second half of the parabola
+    a, b, c = fx_parabola(x1, x2, x3, y3, y2, y3)
+    x_pos2, y_pos2 = parabolaPoints(x2, x3, a, b, c)
+    plt.plot(x_pos2, y_pos2, linestyle="-", color=color)  # second half of parabola line
+    # plt.scatter(x1,y1,color='r',marker="D",s=50) # 1st known xy
+    # plt.scatter(x2,y2,color='g',marker="D",s=50) # 2nd known xy
+    # plt.scatter(x3,y3,color='k',marker="D",s=50) # 3rd known xy
