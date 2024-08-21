@@ -12,6 +12,7 @@ from sympy import Symbol, im, I
 from sympy import re as real
 from sympy import symbols
 
+from time import ctime
 from ase import Atoms
 from ase.io import read as aseread
 from IPython.display import display
@@ -149,15 +150,16 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
     :raises [RunTimeError]: The calculation file exists, but does not have
       an energy
     ...
-    :return: energy, calc, fmax, timestamp, cell_a, cell_b, cell_c, gamma,
+    :return: energy, calc, fmax, human_time, timestamp, cell_a, cell_b, cell_c, gamma,
       formula,
-    :rtype: float, Atoms, float, time.ctime, float, float, float, float, str
+    :rtype: float, Atoms, float, str, float, float, float, float, str
     """
 
     path = row["Path"]
     # print([path +'/'+ n for n in os.listdir(path)])
     verboseprint = getverboseprint(verbose)
     timestamp = getmtime(path)
+    human_time = ctime(timestamp)
     energy = 0
     calc = Atoms()
     fmax = 0
@@ -200,6 +202,7 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
         calc,
         fmax,
         timestamp,
+        human_time,
         cell_a,
         cell_b,
         cell_c,
@@ -251,6 +254,7 @@ def create_frame(
             frame["struc"],
             frame["fmax"],
             frame["timestamp"],
+            frame["human_time"],
             frame["a"],
             frame["b"],
             frame["c"],
@@ -319,6 +323,7 @@ def update(
                 new["struc"],
                 new["fmax"],
                 new["timestamp"],
+                new["human_time"],
                 new["a"],
                 new["b"],
                 new["c"],
@@ -360,11 +365,19 @@ def update(
 
 def group_min(Frame, group, value):
     MLgroup = Frame.groupby(group)
-    ML_min = DataFrame(columns=Frame.columns)
+    ML_max = DataFrame(columns=Frame.columns)
     for name, group in MLgroup:
         group = MLgroup.get_group(name)
-        ML_min = pd.concat([ML_min, group.sort_values(value).head(n=1)])
-    return ML_min
+        ML_max = pd.concat([ML_max, group.sort_values(value).head(n=1)])
+    return ML_max
+
+def group_max(Frame, group, value):
+    MLgroup = Frame.groupby(group)
+    ML_max = DataFrame(columns=Frame.columns)
+    for name, group in MLgroup:
+        group = MLgroup.get_group(name)
+        ML_max = pd.concat([ML_max, group.sort_values(value).tail(n=1)])
+    return ML_max
 
 
 def count_element(row, element, struc="struc"):
@@ -374,65 +387,6 @@ def count_element(row, element, struc="struc"):
         print(row.Name, error)
     count_of_element = len([atom.symbol for atom in traj if atom.symbol == element])
     return count_of_element
-
-
-def Adsorption(
-    frame,
-    adsorbates=None,
-):
-    # Area = a*b*np.sin(np.radians(gamma))
-    # vac = c-np.max(positions, axis=0)[2] + np.min(positions, axis=0)[2]#
-    if adsorbates is None:
-        adsorbates = [
-            "CHO",
-            "NH3",
-            "NH2_H" "CuO",
-            "NiO",
-            "H",
-            "Hx4",
-            "O",
-            "Ox2",
-            "Ox3",
-            "OH",
-            "OHx2",
-            "HCOO",
-            "COOH",
-            "CO",
-            "CO2",
-            "COx2",
-            "Hx2",
-            "CN",
-            "CNx2",
-        ]
-    index = frame.index
-    frame.loc[index, "B_clean"] = [True if "clean" in i else False for i in index]
-    frame.loc[index, "B_adsorbate"] = [True if "NH3" in i else False for i in index]
-
-    for i in [
-        "CHO",
-        "NH3",
-        "NH2_H",
-        "CuO",
-        "NiO",
-        "H",
-        "Hx4",
-        "O",
-        "Ox2",
-        "Ox3",
-        "OH",
-        "OHx2",
-        "HCOO",
-        "COOH",
-        "CO",
-        "CO2",
-        "COx2",
-        "Hx2",
-        "CN",
-        "CNx2",
-    ]:
-        if "-" + i + "-" in index:
-            frame.loc[index, "B_adsorbate"] = True
-            continue
 
 
 def distance_from_surface(
@@ -566,6 +520,9 @@ def lines_that_start_with(string, fp):
 
 
 def get_entropies(frame, out_file: str = None, verbose=True):
+        
+    assert out_file is not None, 'No out_file chosen in get_entropies(frame, out_file=)'
+
     if verbose:
         logger.setLevel(logging.DEBUG)
     else:
@@ -716,8 +673,11 @@ def get_zpe_entropies(row, verbose=False, out_file=None):
         logger.setLevel(logging.INFO)
 
     fp = row["Path"]
-    if out_file is None:
-        logger.debug("no out_file chosen")
+    assert out_file is not None, 'No out_file chosen in get_zpe_netropies(out_file)'
+    
+    #if out_file is None:
+    #    logger.critical("no out_file chosen")
+    #    herehere
     if out_file is not None:
         logger.debug("outfile is " + out_file)
         try:
@@ -1002,7 +962,8 @@ def barrier(x1, x2, x3, y1, y2, y3, color="black"):
     """
 
     def fx_parabola(x1, x2, x3, y1, y2, y3):
-        "Returns the function of a parabola going through three points."
+        """Returns the function of a parabola going through three points:
+        y  =  a * x^^2 + b * x + c."""
         denom = (x1 - x2) * (x1 - x3) * (x2 - x3)
         a = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denom
         b = (x3 * x3 * (y1 - y2) + x2 * x2 * (y3 - y1) + x1 * x1 * (y2 - y3)) / denom
