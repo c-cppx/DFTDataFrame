@@ -22,6 +22,8 @@ from pandas import DataFrame, read_csv
 import pandas as pd
 from pathlib import Path
 
+from typing import IO
+from tqdm import tqdm
 
 from ase.neighborlist import neighbor_list
 
@@ -249,6 +251,8 @@ def create_frame(
     if len(frame) == 0:
         print(frame)
     else:
+        tqdm.pandas(desc="reading structures ")
+
         (
             frame["E"],
             frame["struc"],
@@ -260,7 +264,7 @@ def create_frame(
             frame["c"],
             frame["gamma"],
             frame["Formula"],
-        ) = zip(*frame.apply(read_relaxed_structure, args=[calc_file, verbose], axis=1))
+        ) = zip(*frame.progress_apply(read_relaxed_structure, args=[calc_file, verbose], axis=1))
 
     return DataFrame(frame)
 
@@ -463,8 +467,7 @@ def getVacuum(row, axis=3):
 def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz", min=None):
     path = row["Path"]
     files = row["files"]
-    # print(path)
-    # os.chdir(row['Path'])
+
     frequencies = []
     if xyzfile in files:
         file = open(path + "/" + xyzfile, "r", encoding="utf-8")
@@ -519,7 +522,7 @@ def lines_that_start_with(string, fp):
 # Entropies
 
 
-def get_entropies(frame, out_file: str = None, verbose=True):
+def get_entropies(frame, out_file: str = None, verbose=False):
         
     assert out_file is not None, 'No out_file chosen in get_entropies(frame, out_file=)'
 
@@ -527,11 +530,11 @@ def get_entropies(frame, out_file: str = None, verbose=True):
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
-
+    tqdm.pandas(desc="reading entropies ") ## creates the progress bar
     entropies = DataFrame(
         columns=[
             "modes_for_G",
-            "Cv_T_at",
+            "Cv_at_T",
             "E_pot",
             "E_ZPE",
             "Cv_trans",
@@ -547,8 +550,7 @@ def get_entropies(frame, out_file: str = None, verbose=True):
         ],
         index=frame.index,
     )
-    (
-        entropies["modes_for_G"],
+    ( entropies["modes_for_G"],
         entropies["Cv_T_at"],
         entropies["E_pot"],
         entropies["E_ZPE"],
@@ -562,108 +564,122 @@ def get_entropies(frame, out_file: str = None, verbose=True):
         entropies["S_vib"],
         entropies["Sbar"],
         entropies["S"],
-    ) = zip(*frame.apply(get_zpe_entropies, args=[verbose, out_file], axis=1))
+    ) =   zip(*frame.progress_apply(get_zpe_entropies, args=[verbose, out_file], axis=1))
+    frame.update(entropies)
     try:
         frame = frame.join(entropies)
     except Exception:
-        # print("Overwrite Entropies in Frame")  # An error occured
         frame.update(entropies)
-
+    frame['has_entropy'] = frame.S.isna()
     return frame
+
+def find_matching_line_in_file(f: IO, search_string):
+    matches = [i for i, line in enumerate(f.read().split("\n")) if search_string in line ] 
+    
+    return matches
 
 
 def Entropylines(fp):
     Entropies = {}
     if not ospath.exists(fp):
-        logging.debug("no file", fp)
-        return None
+        logging.critical("no file "+ fp)
+        return Entropies
     else:
-        with open(fp, "r", errors="replace") as f:
-            logger.debug(fp)
+        #logging.debug('file exists: ' +fp)
+        with open(fp, "r", errors="replace") as f1:
+            matches = find_matching_line_in_file(f1, "  #    meV     cm^-1")
+        if len(matches) > 0:
             try:
-                for line in f:
-                    while not line.startswith("  #    meV     cm^-1"):
+                with open(fp, "r", errors="replace") as f:
+                    for line in f:
+                        for m in range(int(matches[-1])):
+                            next(f)
                         line = next(f)
-                    line = next(f)
-                    line = next(f)  # to line with 0
-                    modes = []
+                        line = next(f)
+                        modes = []
 
-                    while not line.startswith("-"):
-                        modes.append(line.split()[2])
-                        line = next(f)
-                    Entropies["modes_for_G"] = modes
-                    while not line.startswith("Enthalpy components at T"):
-                        line = next(f)
-                    if line.startswith("Enthalpy components at T"):
-                        Entropies["Cv_T_at"] = float(line.split()[5])
-                        line = next(f)
+                        while not line.startswith("-"):
+                            modes.append(line.split()[2])
+                            line = next(f)
+                        Entropies["modes_for_G"] = modes
 
-                    while not line.startswith("E_pot"):
-                        line = next(f)
-                    if line.startswith("E_pot"):
-                        Entropies["E_pot"] = float(line.split()[1])
-                        line = next(f)
+                        while not line.startswith("Enthalpy components at"):
+                            line = next(f)
+                        if line.startswith("Enthalpy components at T"):
+                            Entropies["Cv_T_at"] = float(line.split()[5])
+                            line = next(f)
 
-                    if line.startswith(
-                        "E_ZPE",
-                    ):  # Loop until it finds E_pot
-                        # then continues the next condition
-                        Entropies["E_ZPE"] = float(line.split()[1])
-                        line = next(f)
+                        while not line.startswith("E_pot"):
+                            line = next(f)
+                        if line.startswith("E_pot"):
+                            Entropies["E_pot"] = float(line.split()[1])
+                            line = next(f)
 
-                    if line.startswith("Cv_trans"):
-                        Entropies["Cv_trans"] = float(line.split()[2])
-                        line = next(f)
+                        while not line.startswith("E_ZPE"):
+                            line = next(f)
+                        if line.startswith("E_ZPE"):  # Loop until it finds E_pot
+                            # then continues the next condition
+                            Entropies["E_ZPE"] = float(line.split()[1])
+                            line = next(f)
 
-                    if line.startswith("Cv_rot (0->T)"):
-                        Entropies["Cv_rot"] = float(line.split()[2])
-                        line = next(f)
+                        while not line.startswith("Cv_trans"):
+                            line = next(f)
+                        if line.startswith("Cv_trans"):
+                            Entropies["Cv_trans"] = float(line.split()[2])
+                            line = next(f)
 
-                    if line.startswith("Cv_vib (0->T)"):
-                        Entropies["Cv_vib"] = float(line.split()[2])
-                        line = next(f)
+                        while not line.startswith("Cv_rot"):
+                            line = next(f)
+                        if line.startswith("Cv_rot"):
+                            Entropies["Cv_rot"] = float(line.split()[2])
+                            line = next(f)
 
-                    if line.startswith("(C_v -> C_p)"):
-                        Entropies["C_vtoC_p"] = float(line.split()[3])
-                        line = next(f)
-                    while not line.startswith("S_trans (1 bar)"):
-                        line = next(f)
-                    if line.startswith("S_trans (1 bar)"):
-                        Entropies["S_trans"] = float(line.split()[3])
-                        line = next(f)
+                        while not line.startswith("Cv_vib"):
+                            line = next(f)
+                        if line.startswith("Cv_vib"):
+                            Entropies["Cv_vib"] = float(line.split()[2])
+                            line = next(f)
 
-                    if line.startswith("S_rot"):
-                        Entropies["S_rot"] = float(line.split()[1])
-                        line = next(f)
+                        while not line.startswith("(C_v -> C_p)"):
+                            line = next(f)
+                        if line.startswith("(C_v -> C_p)"):
+                            Entropies["C_vtoC_p"] = float(line.split()[3])
+                            line = next(f)
+                        while not line.startswith("S_trans (1 bar)"):
+                            #print(line)
+                            line = next(f)
+                        if line.startswith("S_trans (1 bar)"):
+                            Entropies["S_trans"] = float(line.split()[3])
+                            line = next(f)
 
-                    if line.startswith("S_elec"):
-                        Entropies["S_elec"] = float(line.split()[1])
-                        line = next(f)
+                        if line.startswith("S_rot"):
+                            Entropies["S_rot"] = float(line.split()[1])
+                            line = next(f)
 
-                    if line.startswith("S_vib"):
-                        Entropies["S_vib"] = float(line.split()[1])
-                        line = next(f)
+                        if line.startswith("S_elec"):
+                            Entropies["S_elec"] = float(line.split()[1])
+                            line = next(f)
 
-                    if line.startswith("S (1 bar -> P) "):
-                        Entropies["Sbar"] = float(line.split()[5])
-                        next(f)
-                        line = next(f)
-                    if line.startswith("S"):
-                        Entropies["S"] = float(line.split()[1])
-                        next(f)
-                        line = next(f)
-                    
-                    return Entropies
+                        if line.startswith("S_vib"):
+                            Entropies["S_vib"] = float(line.split()[1])
+                            line = next(f)
+
+                        if line.startswith("S (1 bar -> P)"):
+                            Entropies["Sbar"] = float(line.split()[5])
+                            next(f)
+                            line = next(f)
+                        if line.startswith("S"):
+                            Entropies["S"] = float(line.split()[1])
+                            next(f)
+                            line = next(f)
+                        
+                        return Entropies
             except StopIteration:
-                logger.debug(
-                    fp + " End of file with not entropies found   " + Entropies
-                )  # An error occurred:
-
-                # except Exception as error:
-                #    logger.debug(
-                #        fp + " Unusual "+ type(error).__name__+" error reading file"
-                #    )  # An error occurred:
                 return Entropies
+        else:
+            #logger.debug('no matches')
+            return Entropies
+
 
 
 def get_zpe_entropies(row, verbose=False, out_file=None):
@@ -675,42 +691,26 @@ def get_zpe_entropies(row, verbose=False, out_file=None):
     fp = row["Path"]
     assert out_file is not None, 'No out_file chosen in get_zpe_netropies(out_file)'
     
-    #if out_file is None:
-    #    logger.critical("no out_file chosen")
-    #    herehere
-    if out_file is not None:
-        logger.debug("outfile is " + out_file)
-        try:
-            entropies = Entropylines(get_pathtofile(fp, out_file))
-        except Exception as error:
-            logger.debug(
-                row.Name + " An error occured here: " + type(error).__name__
-            )  # An error occured
-            entropies = None
-
-    if entropies is None:
-        if verbose:
-            logger.debug(row.Name + " no entropies")
+    entropies = Entropylines(get_pathtofile(fp, out_file))
+    #logging.info('output from Entropylines ')
+    #logging.info(len(entropies))
+    #logging.info(entropies)
+    assert entropies is not None, 'None entropies returned'
+    if len(entropies) == 0:
+        #logger.info(row.Name + " empty entropies")
         return [NaN] * 14
     elif len(entropies) == 14:
-        logger.debug(row.Name + " valid entropies")
-
-        return tuple(entropies.values())
-    if len(entropies) == 0:
-        logger.critical(row.Name + " empty entropies")
-        return [NaN] * 14
-
+        #print(entropies)
+        return entropies.values()
     else:
-        logger.critical(
-            row.Name
-            + " partial entropies: "
-            + str(len(entropies))
-            + " "
-            + str(entropies.keys())
-        )
+        #logger.info(
+        #    row.Name
+        #    + " partial entropies: "
+        #    + str(len(entropies))
+        #    + " "
+        #    + str(entropies.keys())
+       #)
         return [NaN] * 14
-
-
 
 # free G
 
