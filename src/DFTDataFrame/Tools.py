@@ -28,7 +28,6 @@ from tqdm import tqdm
 from ase.neighborlist import neighbor_list
 
 logging.basicConfig(level=logging.INFO)
-
 logger = logging.getLogger(__name__)
 
 
@@ -50,8 +49,8 @@ def read_strucfile(row, file=None):
             logging.critical(file + " empty in " + row.Name)
             return Atoms()
         except Exception as error:
-            print(
-                row.Name, "An error occured:", type(error).__name__
+            logging.critical(
+                row.Name+ " An error occured: "+ type(error).__name__
             )  # An error occured
             logging.critical(file + " not readable " + row.Name)
             return Atoms()
@@ -120,20 +119,38 @@ def makename(path, root, droplist=None, replacedic=None):
     return name
 
 
-def fill_struc_gap(row, fillwith):
+def fill_struc_gap(row, fillwith, verbose=False):
     """Fills the gaps in a structure column with the structure from a given file."""
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+        logger = logging.getLogger(__name__)
+
     if row.struc == Atoms():
         struc = read_strucfile(row, fillwith)
         try:
             E = struc.get_potential_energy()
             fmax = np.max(struc.get_forces())
-        except Exception as error:
-            print(
-                row.Name, "An error occured:", type(error).__name__
+        except RuntimeError as error:
+            logger.debug(
+                row.Name+  " An error occured: "+ type(error).__name__
             )  # An error occured
             E = NaN
             fmax = NaN
-            print(row.Name, fillwith, "no calculator")
+        except StopIteration as error:
+            logger.debug(
+                row.Name+  " StopIteration error occured: "
+            )  # An error occured
+            E = NaN
+            fmax = NaN
+        except Exception as error:
+            logger.debug(
+                row.Name+  " Unexpected error: "+ type(error).__name__
+            )  # An error occured
+            E = NaN
+            fmax = NaN
         return struc, E, fmax
     else:
         return row.struc, row.E, row.fmax
@@ -153,13 +170,17 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
       an energy
     ...
     :return: energy, calc, fmax, human_time, timestamp, cell_a, cell_b, cell_c, gamma,
-      formula,
-    :rtype: float, Atoms, float, str, float, float, float, float, str
+      formula, constraints
+    :rtype: float, Atoms, float, str, float, float, float, float, str, list
     """
-
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+        logger = logging.getLogger(__name__)
     path = row["Path"]
     # print([path +'/'+ n for n in os.listdir(path)])
-    verboseprint = getverboseprint(verbose)
     timestamp = getmtime(path)
     human_time = ctime(timestamp)
     energy = 0
@@ -170,22 +191,20 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
     cell_c = 0
     gamma = 0
     formula = 0
+    constraints = None
     pathtofile = get_pathtofile(path, calc_file)
     if ospath.exists(pathtofile):
         try:
             calc = aseread(pathtofile)
         except Exception as error:
-            print(
-                row.Name, "An error occured:", type(error).__name__
-            )  # An error occured
-            verboseprint("{0} could not be read ".format(calc_file))
+            logger.debug("{0} could not be read ".format(calc_file))
             calc = Atoms()
         else:
             try:
                 energy = calc.get_potential_energy()
                 fmax = round(np.max(np.abs(calc.get_forces())), 4)
             except RuntimeError:
-                logging.critical("%s energy could not be read", pathtofile)
+                logging.debug("%s energy could not be read", pathtofile)
                 energy = 0
                 fmax = 0
             else:
@@ -194,11 +213,13 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
                 cell_c = calc.cell.cellpar()[2]
                 gamma = calc.cell.cellpar()[5]
                 formula = calc.get_chemical_formula()
+                constraints = calc.constraints
+
     else:
-        logging.info("%s does not exist", pathtofile)
+        logger.debug("%s does not exist", pathtofile)
         calc = Atoms()
     if calc == 0:
-        logging.error("Outstanding error")
+        logger.debug("Outstanding error")
     return (
         energy,
         calc,
@@ -210,6 +231,7 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
         cell_c,
         gamma,
         formula,
+        constraints
     )
 
 
@@ -219,7 +241,7 @@ def create_frame(
     calc_file="OUTCAR",
     droplist=None,
     replacedic=None,
-    verbose=False,
+    verbose=False
 ):
     """
     - flag_file: The file to look for when walking the folders that contain
@@ -248,6 +270,7 @@ def create_frame(
     frame["files"] = frame["Path"].apply(listdir)
     if verbose:
         display(frame)
+
     if len(frame) == 0:
         print(frame)
     else:
@@ -264,6 +287,7 @@ def create_frame(
             frame["c"],
             frame["gamma"],
             frame["Formula"],
+            frame["constraints"]
         ) = zip(*frame.progress_apply(read_relaxed_structure, args=[calc_file, verbose], axis=1))
 
     return DataFrame(frame)
@@ -465,12 +489,11 @@ def getVacuum(row, axis=3):
 
 
 def frequency(row, sliced=slice(None, None, None), xyzfile="vib.xyz", min=None):
-    path = row["Path"]
-    files = row["files"]
+    files = listdir(row.Path)#row["files"]
 
     frequencies = []
     if xyzfile in files:
-        file = open(path + "/" + xyzfile, "r", encoding="utf-8")
+        file = open(row.Path + "/" + xyzfile, "r", encoding="utf-8")
         for line in file:
             if re.search("Mode", line):
                 # print(line)
@@ -574,15 +597,14 @@ def get_entropies(frame, out_file: str = None, verbose=False):
     return frame
 
 def find_matching_line_in_file(f: IO, search_string):
-    matches = [i for i, line in enumerate(f.read().split("\n")) if search_string in line ] 
-    
+    matches = [i for i, line in enumerate(f.read().split("\n")) if search_string == line ]  
     return matches
 
 
 def Entropylines(fp):
     Entropies = {}
     if not ospath.exists(fp):
-        logging.critical("no file "+ fp)
+        #logging.critical("no file "+ fp)
         return Entropies
     else:
         #logging.debug('file exists: ' +fp)
@@ -672,7 +694,6 @@ def Entropylines(fp):
                             Entropies["S"] = float(line.split()[1])
                             next(f)
                             line = next(f)
-                        
                         return Entropies
             except StopIteration:
                 return Entropies
@@ -750,19 +771,21 @@ def ads_free_G(row):
     return G
 
 
-def Atommultiindex(Frame, struc_file="CONTCAR"):
+def Atommultiindex(Frame, structure_column=None):
+    assert structure_column is not None, 'The truc_file variable needs the column name that contains the Atoms objects or a filename to read the structure from.'
     if len(Frame) == 0:
         logging.critical("The Frame is empty")
         return DataFrame(index=["Name", "indices"], columns=["Symbols"])
-    if struc_file not in Frame:
+    if structure_column not in Frame:
+        print('No column named', structure_column, 'found; Try to read '+ structure_column)
         try:
-            Frame[struc_file] = Frame.apply(read_strucfile, args=[struc_file], axis=1)
+            Frame[structure_column] = Frame.apply(read_strucfile, args=[structure_column], axis=1)
         except Exception as error:
-            print("An error occured:", type(error).__name__)  # An error occured
-            logging.critical("could not read" + struc_file)
+            print("An error occured:", type(error).__name__) 
+            logging.critical("could not read" + structure_column)
 
     def getsymbols(row):
-        struc = row[struc_file]
+        struc = row[structure_column]
         Name = row.Name
         symbols = struc.get_chemical_symbols()
         names = [Name] * len(struc)
@@ -894,7 +917,7 @@ def read_incar(row, filename="INCAR"):
 def checkxyz(Frame, badertable):
     for i, j in Frame.iterrows():
         if badertable.loc[i] is None:
-            print(i, " has no ACF.dat")
+            #print(i, " has no ACF.dat")
             continue
         if len(badertable.loc[i]) == 0:
             continue
@@ -928,23 +951,32 @@ def Charge(Frame):
 
 
 def read_bader(row):
-    try:
-        CHG = read_csv(
-            row["Path"] + "/ACF.dat",
-            skiprows=lambda x: x in [1],
-            index_col=None,
-            delim_whitespace=True,
-        )
-    except Exception as error:
-        print(row.Name, "An error occured:", type(error).__name__)  # An error occured
-        print(row["Path"], "no ACF.dat")
-        return print(row["Path"], row["files"])
+    if ospath.exists(get_pathtofile(row.Path, "ACF.dat")):
+        print(row.Name, 'exists')
+        try:
+            CHG = read_csv(
+                row["Path"] + "/ACF.dat",
+                skiprows=lambda x: x in [1],
+                index_col=None,
+                delim_whitespace=True,
+            )
+        except Exception as error:
+            print('excepts')
+            #print(row.Name, "error reading ACF.dat file:", type(error).__name__)  # An error occured
+            #print(row["Path"], "no ACF.dat")
+            #return print(row["Path"], row["files"])
+            CHG =  pd.DataFrame(columns=['#', 'X', 'Y', 'Z', 'CHARGE', 'MIN', 'DIST', 'ATOMIC', 'VOL'])
+    else:
+        print(row.Name, 'does not exist')
+        CHG = pd.DataFrame(columns=['#', 'X', 'Y', 'Z', 'CHARGE', 'MIN', 'DIST', 'ATOMIC', 'VOL'])
+
     CHG.index.name = "index"
     # print(CHG.to_string())
     #    TotalElectron = CHG[CHG["#"] == "NUMBER"].Z.values[0]
-    CHG = CHG.rename(columns={"MIN": "MIN DISTANCES", "DIST": "ATOMIC VOL"})
-    CHG.drop(["ATOMIC", "VOL"], axis=1, inplace=True)
-    CHG.drop(CHG[-4:].index.to_list(), inplace=True)
+    CHG = (CHG.rename(columns={"MIN": "MIN DISTANCES", "DIST": "ATOMIC VOL"})
+            .drop(["ATOMIC", "VOL"], axis=1)
+            .drop(CHG[-4:].index.to_list())
+    )
     return CHG
 
 
