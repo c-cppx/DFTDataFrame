@@ -31,8 +31,10 @@ pip3 install ./
 
 ## Usage
 
-To use the Python class in this repository, you can import it into your Python code using the following syntax:
+Just download the file "Tools.py" or use a pip installer to also the the necessary packages or whatever your preferred way of integration may be.
 
+
+##Example
 ```python
 from DFTDataFrame import Tools
 
