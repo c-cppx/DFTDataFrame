@@ -1,6 +1,6 @@
 # DFTDataFrames
 
-This repository contains a set of Python functions to funnel output from Quantum Chemical Calculation with the help of ASE into a pandas DataFrame. The main intention was to track the adsorption energy for heterogeneous catalysis reactions including reaction barriers and free energy from calculated entropy values with ASE.
+This repository contains a set of Python functions to crawl for output from Quantum Chemical Calculation with the help of ASE into a pandas DataFrame. The main intention was to track the adsorption energy for heterogeneous catalysis reactions including reaction barriers and free energy from calculated entropy values with ASE.
 
 The most essential functions like reading input and output files are ASE dependent as it saves the Atoms Object in a columns. csv format like files can be read by pandas itself. 
 Atoms Simulation Environment object Atoms. Have a look at a graphic visualization of this repo with [octo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=c-cppx%2FDFTDataFrame)
