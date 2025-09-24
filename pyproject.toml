@@ -1,9 +1,23 @@
 # contents of pyproject.toml
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "pandas", "logging"
+,"re"
+,"os"
+,"matplotlib"
+,"numpy"
+,"sympy"
+,"time"
+,"ase"
+,"IPython"
+,"itertools"
+,"pathlib"
+,"typing"
+,"tqdm"
+,"functools"]
 build-backend = "hatchling.build"
 
 [project]
 name = "DFTDataFrame"
 version = "0.1.0"
-
+Author = "Claude Coppex"
+Author-email = "claude.coppex@kit.edu"
