@@ -1,4 +1,4 @@
-#! /venv/bin/python
+#! /.venv/bin/python
 
 
 from DFTDataFrame.Tools import crawl, create_frame, get_element_counts
@@ -23,7 +23,7 @@ if args.verbose:
 if args.root:
     print(f"Reading {args.root}.")
     paths = crawl(args.root)
-    Frame = create_frame(root=args.root, calc_file='final.traj',  verbose=True)
+    Frame = create_frame(root=args.root, paths=paths, calc_file='final.traj',  verbose=True)
     Frame = get_element_counts(Frame)
 
 
