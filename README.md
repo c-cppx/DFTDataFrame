@@ -22,9 +22,10 @@ git clone https://github.com/c-cppx/DFTDataFrame.git
 ### Creat and activate a virtual environment and install the DFTDataFrame package in the environment.
 
 ```bash
-conda create --name DFTDF python=3.11
-conda activate DFTDF
+git clone https://github.com/c-cppx/DFTDataFrame.git
 cd DFTDataFrame
+conda create --name DFTDF python=3.10
+conda activate DFTDF
 pip3 install ./ -r requirements.txt
 pip3 install ./
 ```
