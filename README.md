@@ -24,10 +24,12 @@ git clone https://github.com/c-cppx/DFTDataFrame.git
 ```bash
 git clone https://github.com/c-cppx/DFTDataFrame.git
 cd DFTDataFrame
-conda create --name DFTDF python=3.10
-conda activate DFTDF
-pip3 install ./ -r requirements.txt
-pip3 install ./
+pip install uv
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+uv pip install ./
+
 ```
 
 ## Usage
@@ -35,18 +37,10 @@ pip3 install ./
 To use the Python class in this repository, you can import it into your Python code using the following syntax:
 
 ```python
-from DFTDataFrame import Tools
-
-root='Path_to_calculations' # The path to the folder that contains all calculations you want to have in your frame.
-flag_file = 'final.traj' # A function will look for all subfolders in the root that contain this file and only include those in the frame.
-calc_file='final.traj'  # Those files will be read with ase.read to get the final structure and energy
-YourCalculationsFrame = create_frame(root, calc_file='final.traj', flag_file='final.traj')
-
+python Readingingoutputfiles.py -r ~/Calculations/ -o DataBase
 ```
-YourCalculationsFrame is now a pandas DataFrame object. Many functions for reading e.g:
-- Frequencies, Bader charges from ACF.dat are provided in the Tools file. Example of how to use them are shsown in the the attached Jupyter Notebooks Adsorbates. 
-- Inputparameter checks for consistency among the calculations for Kpoints and others are described in InputParameters.ipynb
 
+The calculations in folder "Calculations" are now in the excel file "DataBase.xlsx"
 
 I recommend to watch some of [Matt Harrisons tutorials](https://www.youtube.com/results?search_query=matt+harrison+effective+pandas) tutorials about Pandas or read his book ["Effective Pandas"](https://store.metasnake.com/effective-pandas-book).
 
