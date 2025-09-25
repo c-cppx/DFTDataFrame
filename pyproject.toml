@@ -1,19 +1,6 @@
 # contents of pyproject.toml
 [build-system]
-requires = ["hatchling", "pandas", "logging"
-,"re"
-,"os"
-,"matplotlib"
-,"numpy"
-,"sympy"
-,"time"
-,"ase"
-,"IPython"
-,"itertools"
-,"pathlib"
-,"typing"
-,"tqdm"
-,"functools"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
