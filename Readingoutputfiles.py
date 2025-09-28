@@ -1,4 +1,4 @@
-#! /.venv/bin/python
+#! .venv/bin/python
 
 
 from DFTDataFrame.Tools import crawl, create_frame, get_element_counts
@@ -8,7 +8,7 @@ import argparse
 parser = argparse.ArgumentParser(description="Sample script with flags.")
 
 # Add flags/arguments
-parser.add_argument("-r", "--root", type=str, help="Root of calculations", required=True)
+parser.add_argument("-r", "--root", type=str, help="Root of calculations", default='Templates/data')
 parser.add_argument("-o", "--output", type=str, help="Destination for Excel")
 parser.add_argument("-q", "--query", type=str, help="Input for DataFrame.query()")
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")

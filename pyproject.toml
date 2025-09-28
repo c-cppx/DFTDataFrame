@@ -1,10 +1,14 @@
 # contents of pyproject.toml
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "DFTDataFrame"
 version = "0.1.0"
-Author = "Claude Coppex"
-Author-email = "claude.coppex@kit.edu"
+authors = [{name = "Claude Coppex", email = "claude.coppex@kit.edu"}]
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/c-cppx/DFTDataFrame"
+Homepage = "https://github.com/c-cppx/DFTDataFrame"
