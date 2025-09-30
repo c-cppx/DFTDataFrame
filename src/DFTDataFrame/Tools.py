@@ -217,7 +217,7 @@ def crawl(root, flag="out.txt") -> list:
     return paths
 
 
-def makename(path, root, droplist=None, replacedic=None, prelabel=None, postlabel=None)
+def makename(path, root, droplist=None, replacedic=None, prelabel=None, postlabel=None):
     """Creates the index from the path string"""
     root = pathlib.Path(root)
     name = path.replace(root, "").replace("/", "-")  # root
