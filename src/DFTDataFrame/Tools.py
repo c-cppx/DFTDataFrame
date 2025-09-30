@@ -220,7 +220,7 @@ def crawl(root, flag="out.txt") -> list:
 
 def makename(path, root, droplist=None, replacedic=None, prelabel=None, postlabel=None):
     """Creates the index from the path string"""
-    root = validatePath(root)
+    root = str(validatePath(root))
     name = path.replace(root, "").replace("/", "-")  # root
     if droplist is not None:
         for string in droplist:
