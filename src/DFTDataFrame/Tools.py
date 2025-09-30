@@ -217,8 +217,9 @@ def crawl(root, flag="out.txt") -> list:
     return paths
 
 
-def makename(path, root, droplist=None, replacedic=None):
+def makename(path, root, droplist=None, replacedic=None, prelabel=None, postlabel=None)
     """Creates the index from the path string"""
+    root = pathlib.Path(root)
     name = path.replace(root, "").replace("/", "-")  # root
     if droplist is not None:
         for string in droplist:
@@ -228,6 +229,11 @@ def makename(path, root, droplist=None, replacedic=None):
         for string1, string2 in replacedic.items():
             name = name.replace(string1, string2)
     name = name.replace("--", "-")
+    if prelabel is not None:
+        name = prelabel+name 
+
+    if postlabel is not None:
+        name = name+postlabel
     return name
 
 
@@ -312,7 +318,7 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
         try:
             calc = aseread(pathtofile)
         except Exception as error:
-            logger.debug(("{0} could not be read " + error).format(calc_file))
+            logger.debug(("file could not be read").format(calc_file))
             calc = Atoms()
         else:
             try:
@@ -352,16 +358,19 @@ def read_relaxed_structure(row, calc_file="OUTCAR", verbose=False):
 
 @logger_wrapper
 def create_frame(
-    root, paths, calc_file="OUTCAR", droplist=None, replacedic=None, verbose=False
+    root, paths, calc_file="OUTCAR", prelabel=None, postlabel=None, droplist=None, replacedic=None, verbose=False
 ) -> DataFrame:
     """
     - flag_file: The file to look for when walking the folders that contain
         calculations.
     - calc_file: The structure file that contains propiertes from the
         calculation (calc, final.traj). read with ase.io.aseread
+    - prelabel: Added to the label in front.
+    - postlabel: Added to the label at the end.
     - struc: The final structure after relaxation. aseread with ase.io.aseread
     - droplist: a list of strings that can be ommitted when creating the Name from the Path e.g slab, surface
     """
+
     if droplist is None:
         droplist = []
 
@@ -453,7 +462,7 @@ def update(
     if paths_to_update:
         print("update", len(paths_to_update), "folders")
         new = DataFrame(newpaths, columns=["Path"])
-        new["Name"] = new["Path"].apply(makename, args=[root, droplist])
+        new["Name"] = new["Path"].apply(makename, args=[root, droplist, prelabel, postlabel])
         new = DataFrame(
             new.Path.to_list(), index=new["Name"].to_list(), columns=["Path"]
         )
