@@ -14,6 +14,7 @@ from os.path import getmtime
 
 import matplotlib.pyplot as plt
 
+from pathlib import Path as validatePath
 
 from sympy import Symbol, im, I
 from sympy import re as real
@@ -219,7 +220,7 @@ def crawl(root, flag="out.txt") -> list:
 
 def makename(path, root, droplist=None, replacedic=None, prelabel=None, postlabel=None):
     """Creates the index from the path string"""
-    root = pathlib.Path(root)
+    root = validatePath(root)
     name = path.replace(root, "").replace("/", "-")  # root
     if droplist is not None:
         for string in droplist:
